@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Exports\RegistrationsExport;
+use App\Exports\AllRegistrationsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RegistrationController extends Controller
@@ -108,6 +109,47 @@ class RegistrationController extends Controller
         return Excel::download(new RegistrationsExport($link->id), $fileName);
     }
 
+    // Export CSV for all registrations or filtered by link_id query param
+    public function exportAllCsv(Request $request)
+    {
+        $query = Registration::orderBy('created_at');
+        $fileSuffix = 'all';
+        if ($request->filled('link_id')) {
+            $query->where('form_link_id', $request->input('link_id'));
+            $fileSuffix = 'link_'.$request->input('link_id');
+        }
+
+        $rows = $query->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="registrations_'.$fileSuffix.'.csv"',
+        ];
+
+        $callback = function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, array_keys($rows->first()?->toArray() ?? ['id']));
+            foreach ($rows as $row) {
+                fputcsv($out, $row->toArray());
+            }
+            fclose($out);
+        };
+
+        return new StreamedResponse($callback, 200, $headers);
+    }
+
+    // Export XLSX for all registrations or filtered by link_id query param
+    public function exportAllXlsx(Request $request)
+    {
+        if ($request->filled('link_id')) {
+            $linkId = $request->input('link_id');
+            $fileName = 'registrations_link_'.$linkId.'.xlsx';
+            return Excel::download(new RegistrationsExport($linkId), $fileName);
+        }
+
+        return Excel::download(new AllRegistrationsExport(), 'registrations_all.xlsx');
+    }
+
     // Admin: list registrations, optional filter by link_id
     public function indexRegistrations(Request $request)
     {
@@ -118,5 +160,25 @@ class RegistrationController extends Controller
         $registrations = $query->get();
         $links = FormLink::orderBy('created_at','desc')->get();
         return view('admin.registrations', compact('registrations','links'));
+    }
+
+    // Admin: show registrations for a specific form link token
+    public function showRegistrationsByToken($token)
+    {
+        $link = FormLink::where('token', $token)->firstOrFail();
+
+        $registrations = Registration::with('formLink')
+            ->where('form_link_id', $link->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $links = FormLink::orderBy('created_at','desc')->get();
+
+        return view('admin.registrations', [
+            'registrations' => $registrations,
+            'links' => $links,
+            'selectedLinkId' => $link->id,
+            'selectedLink' => $link,
+        ]);
     }
 }

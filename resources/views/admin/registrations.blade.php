@@ -5,15 +5,29 @@
         <h2>Registrations (Admin only)</h2>
         <p>Only authenticated admins can access this page. It shows full details of each submitted registration.</p>
 
+        @php
+            $selId = $selectedLinkId ?? request('link_id');
+        @endphp
+
         <form method="GET" action="{{ url('/admin/registrations') }}">
             <label>Filter by link</label>
             <select name="link_id" onchange="this.form.submit()">
                 <option value="">All</option>
                 @foreach($links as $l)
-                    <option value="{{ $l->id }}" {{ request('link_id') == $l->id ? 'selected' : '' }}>{{ $l->id }} - {{ $l->name ?? $l->token }}</option>
+                    <option value="{{ $l->id }}" {{ ($selId && (int)$selId === (int)$l->id) ? 'selected' : '' }}>{{ $l->id }} - {{ $l->name ?? $l->token }}</option>
                 @endforeach
             </select>
         </form>
+
+        @if(!empty($selectedLink))
+            <p style="margin-top:8px"><strong>Showing registrations for link:</strong> {{ $selectedLink->name ?? $selectedLink->token }} (ID {{ $selectedLink->id }})</p>
+        @endif
+
+        <p style="margin-top:8px">
+            <a href="{{ url('/admin/registrations/export'.($selId?('?link_id='.$selId):'')) }}">Export CSV</a>
+            &nbsp;|&nbsp;
+            <a href="{{ url('/admin/registrations/export-xlsx'.($selId?('?link_id='.$selId):'')) }}">Export XLSX</a>
+        </p>
 
         <table border="1" cellpadding="6" style="width:100%; margin-top:12px">
             <thead>

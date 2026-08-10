@@ -54,6 +54,18 @@ Route::get('/admin/registrations', function (Request $request) use ($checkAdmin)
     if ($resp = $checkAdmin($request)) return $resp;
     return app()->call([RegistrationController::class, 'indexRegistrations'], ['request' => $request]);
 });
+Route::get('/admin/registrations/link/{token}', function (Request $request, $token) use ($checkAdmin) {
+    if ($resp = $checkAdmin($request)) return $resp;
+    return app()->call([RegistrationController::class, 'showRegistrationsByToken'], ['token' => $token]);
+});
+Route::get('/admin/registrations/export', function (Request $request) use ($checkAdmin) {
+    if ($resp = $checkAdmin($request)) return $resp;
+    return app()->call([RegistrationController::class, 'exportAllCsv'], ['request' => $request]);
+});
+Route::get('/admin/registrations/export-xlsx', function (Request $request) use ($checkAdmin) {
+    if ($resp = $checkAdmin($request)) return $resp;
+    return app()->call([RegistrationController::class, 'exportAllXlsx'], ['request' => $request]);
+});
 
 // Public registration form by token
 Route::get('/register/thanks', [RegistrationController::class, 'thankYou'])->name('register.thanks');
