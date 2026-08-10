@@ -2,6 +2,6 @@
 
 @section('content')
 <div class="container">
-    <h3>Thank you — your registration has been submitted.</h3>
+    <h3>Thanks for registering.</h3>
 </div>
 @endsection
