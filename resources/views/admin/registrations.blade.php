@@ -61,9 +61,10 @@
                         <td>{{ $r->transport_type ?? ($r->company_transport_required ? 'Company' : 'Self') }}</td>
                         <td>{{ $r->cric_contact_no }}</td>
                         <td>{{ $r->cric_id_name }}</td>
-                    <td>{{ $r->created_at }}</td>
-                </tr>
-            @endforeach
+                        <td>{{ optional($r->formLink)->name ?? optional($r->formLink)->token ?? $r->form_link_id }}</td>
+                        <td>{{ $r->created_at }}</td>
+                    </tr>
+                @endforeach
         </tbody>
     </table>
 </div>

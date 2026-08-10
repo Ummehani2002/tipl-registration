@@ -15,6 +15,8 @@
         <button type="submit">Create Link</button>
     </form>
 
+    <p><a href="{{ url('/admin/registrations') }}">View all registrations</a></p>
+
     <h3>Existing Links</h3>
     <table border="1" cellpadding="6">
         <thead><tr><th>ID</th><th>Name</th><th>Link</th><th>Export</th></tr></thead>
