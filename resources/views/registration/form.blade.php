@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="card">
-    <form method="POST" action="{{ url('/register/'.$link->token) }}">
+    <form method="POST" action="{{ route('register.submit', ['token' => $link->token]) }}">
         @csrf
         <div class="row">
             <div class="full">
