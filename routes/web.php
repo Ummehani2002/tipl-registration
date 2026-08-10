@@ -3,6 +3,16 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    $token = env('DEFAULT_FORM_TOKEN');
+    if ($token) {
+        return redirect('/register/'.$token);
+    }
+
+    $link = \App\Models\FormLink::orderBy('created_at', 'desc')->first();
+    if ($link) {
+        return redirect('/register/'.$link->token);
+    }
+
     return view('welcome');
 });
 
