@@ -23,6 +23,7 @@
                 <th>Mobile</th>
                 <th>Company</th>
                 <th>Role</th>
+                <th>Transport</th>
                 <th>Link</th>
                 <th>Submitted At</th>
             </tr>
@@ -36,6 +37,7 @@
                     <td>{{ $r->mobile_number }}</td>
                     <td>{{ $r->company }}</td>
                     <td>{{ $r->playing_role }}</td>
+                    <td>{{ $r->transport_type ?? ($r->company_transport_required ? 'Company' : 'Self') }}</td>
                     <td>@if($r->formLink)<a href="{{ url('/register/'.$r->formLink->token) }}" target="_blank">open</a>@endif</td>
                     <td>{{ $r->created_at }}</td>
                 </tr>

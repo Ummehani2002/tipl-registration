@@ -31,7 +31,9 @@ class RegistrationController extends Controller
     public function showForm($token)
     {
         $link = FormLink::where('token', $token)->firstOrFail();
-        $companies = config('companies.list', ['Other']);
+        $companies = collect(config('companies.list', ['Other']))->map(function($c) {
+            return mb_strtoupper($c);
+        })->toArray();
         $roles = ['Batsman','Bowler','Batting All-Rounder','Bowling All-Rounder','Wicket Keeper'];
         return view('registration.form', compact('link','companies','roles'));
     }
@@ -57,10 +59,13 @@ class RegistrationController extends Controller
             'availability_none' => 'nullable|boolean',
             'current_location' => 'nullable|string',
             'company_transport_required' => 'nullable|boolean',
+            'transport_type' => 'nullable|string|in:Self,Company',
         ]);
 
         $data['availability_none'] = $request->has('availability_none');
-        $data['company_transport_required'] = $request->has('company_transport_required');
+        // Keep company_transport_required for backward compatibility, but set based on transport_type
+        $data['transport_type'] = $request->input('transport_type');
+        $data['company_transport_required'] = $data['transport_type'] === 'Company';
         $data['form_link_id'] = $link->id;
 
         Registration::create($data);

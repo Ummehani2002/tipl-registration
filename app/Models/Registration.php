@@ -27,6 +27,7 @@ class Registration extends Model
         'availability_none',
         'current_location',
         'company_transport_required',
+        'transport_type',
     ];
 
     protected $casts = [
@@ -40,5 +41,11 @@ class Registration extends Model
     public function formLink()
     {
         return $this->belongsTo(FormLink::class);
+    }
+
+    // Ensure company is stored in uppercase
+    public function setCompanyAttribute($value)
+    {
+        $this->attributes['company'] = $value ? mb_strtoupper($value) : $value;
     }
 }

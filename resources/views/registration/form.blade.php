@@ -9,11 +9,14 @@
             <div class="full">
                 <label for="full_name">Full Name *</label>
                 <input id="full_name" name="full_name" value="{{ old('full_name') }}" required placeholder="Enter full name" />
-            </div>
-
             <div>
-                <label for="date_of_birth">Date of Birth</label>
-                <input id="date_of_birth" type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" />
+                <label for="transport_type">Company Transport</label>
+                <select id="transport_type" name="transport_type">
+                    <option value="">Select option</option>
+                    <option value="Self" {{ old('transport_type') == 'Self' ? 'selected' : '' }}>Self</option>
+                    <option value="Company" {{ old('transport_type') == 'Company' ? 'selected' : '' }}>Company</option>
+                </select>
+            </div>
             </div>
 
             <div>
