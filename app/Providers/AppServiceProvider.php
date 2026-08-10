@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Ensure the default views path is always available, even when production config cache is stale.
+        view()->addLocation(resource_path('views'));
     }
 }
