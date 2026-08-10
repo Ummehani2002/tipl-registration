@@ -16,8 +16,8 @@
             </div>
 
             <div>
-                <label for="company">Company</label>
-                <select id="company" name="company">
+                <label for="company">Company *</label>
+                <select id="company" name="company" required>
                     @foreach($companies as $c)
                         <option value="{{ $c }}" {{ old('company') == $c ? 'selected' : '' }}>{{ $c }}</option>
                     @endforeach
@@ -40,13 +40,13 @@
             </div>
 
             <div>
-                <label for="email">Email</label>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" />
+                <label for="email">Email *</label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}" required placeholder="name@example.com" />
             </div>
 
             <div>
-                <label for="cric_contact_no">Cric Heroes Contact No.</label>
-                <input id="cric_contact_no" name="cric_contact_no" value="{{ old('cric_contact_no') }}" />
+                <label for="cric_contact_no">Cric Heroes Contact No. *</label>
+                <input id="cric_contact_no" name="cric_contact_no" type="tel" value="{{ old('cric_contact_no', '+971') }}" required pattern="^\+971[0-9]{9}$" placeholder="+971501234567" maxlength="13" />
             </div>
 
             <div>
