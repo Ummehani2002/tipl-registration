@@ -72,7 +72,17 @@
 
             <div>
                 <label for="previous_team">Previous TIPL Team</label>
-                <input id="previous_team" name="previous_team" value="{{ old('previous_team') }}" />
+                <select id="previous_team" name="previous_team">
+                    <option value="">Select previous TIPL team</option>
+                    <option value="SNS United" {{ old('previous_team') == 'SNS United' ? 'selected' : '' }}>SNS United</option>
+                    <option value="Proscape Panthers" {{ old('previous_team') == 'Proscape Panthers' ? 'selected' : '' }}>Proscape Panthers</option>
+                    <option value="Tanseeq Falcons" {{ old('previous_team') == 'Tanseeq Falcons' ? 'selected' : '' }}>Tanseeq Falcons</option>
+                    <option value="FM Titans" {{ old('previous_team') == 'FM Titans' ? 'selected' : '' }}>FM Titans</option>
+                    <option value="WIM Warriors" {{ old('previous_team') == 'WIM Warriors' ? 'selected' : '' }}>WIM Warriors</option>
+                    <option value="Transmech Tuskers" {{ old('previous_team') == 'Transmech Tuskers' ? 'selected' : '' }}>Transmech Tuskers</option>
+                    <option value="Metaline Steel Hawks" {{ old('previous_team') == 'Metaline Steel Hawks' ? 'selected' : '' }}>Metaline Steel Hawks</option>
+                    <option value="Tigers of Proscape" {{ old('previous_team') == 'Tigers of Proscape' ? 'selected' : '' }}>Tigers of Proscape</option>
+                </select>
             </div>
 
             <div class="full">
