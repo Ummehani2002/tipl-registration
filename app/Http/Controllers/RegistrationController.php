@@ -43,6 +43,12 @@ class RegistrationController extends Controller
     {
         $link = FormLink::where('token', $token)->firstOrFail();
 
+        // If the user left the Cric Heroes contact input at the placeholder '+971',
+        // treat it as empty so it isn't validated as an invalid phone number.
+        if ($request->input('cric_contact_no') === '+971') {
+            $request->merge(['cric_contact_no' => null]);
+        }
+
         $data = $request->validate([
             'full_name' => 'required|string|max:255',
             'date_of_birth' => 'required|date',
