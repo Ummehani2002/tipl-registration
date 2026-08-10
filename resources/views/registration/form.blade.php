@@ -2,21 +2,19 @@
 
 @section('content')
 <div class="card">
-    <h2 style="margin-top:0">Player Registration</h2>
+    <div class="form-header" style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <img src="{{ asset(env('LOGO_PATH','logo.png')) }}" alt="{{ config('app.name') }}" style="height:48px" />
+        <div>
+            <div style="font-weight:700">{{ config('app.name') }}</div>
+            <h2 style="margin:0">Player Registration</h2>
+        </div>
+    </div>
     <form method="POST" action="{{ url('/register/'.$link->token) }}">
         @csrf
         <div class="row">
             <div class="full">
                 <label for="full_name">Full Name *</label>
                 <input id="full_name" name="full_name" value="{{ old('full_name') }}" required placeholder="Enter full name" />
-            <div>
-                <label for="transport_type">Company Transport</label>
-                <select id="transport_type" name="transport_type">
-                    <option value="">Select option</option>
-                    <option value="Self" {{ old('transport_type') == 'Self' ? 'selected' : '' }}>Self</option>
-                    <option value="Company" {{ old('transport_type') == 'Company' ? 'selected' : '' }}>Company</option>
-                </select>
-            </div>
             </div>
 
             <div>
@@ -87,9 +85,17 @@
             </div>
 
             <div>
-                <label>Company Transport Required for Trials</label>
-                <label style="display:inline-block;margin-right:12px"><input type="radio" name="company_transport_required" value="1" {{ old('company_transport_required') == '1' ? 'checked' : '' }} /> Yes</label>
-                <label style="display:inline-block"><input type="radio" name="company_transport_required" value="0" {{ old('company_transport_required') === '0' ? 'checked' : '' }} /> No</label>
+                <label for="current_location">Current Location</label>
+                <input id="current_location" name="current_location" value="{{ old('current_location') }}" />
+            </div>
+
+            <div class="full">
+                <label for="transport_type">Company Transport</label>
+                <select id="transport_type" name="transport_type">
+                    <option value="">Select option</option>
+                    <option value="Self" {{ old('transport_type') == 'Self' ? 'selected' : '' }}>Self</option>
+                    <option value="Company" {{ old('transport_type') == 'Company' ? 'selected' : '' }}>Company</option>
+                </select>
             </div>
 
             <div class="full" style="text-align:right">

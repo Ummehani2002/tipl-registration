@@ -28,7 +28,7 @@
 </head>
 <body>
     <header class="site-header">
-        <img src="{{ asset('logo.png') }}" alt="Logo" onerror="this.style.display='none'" />
+        <img src="{{ asset(env('LOGO_PATH', 'logo.png')) }}" alt="Logo" onerror="this.style.display='none'" />
         <div>
             <div class="site-title">TANSEEQ INVESTMENT PREMIER LEAGUE</div>
             <div class="site-sub">Player Registration</div>
