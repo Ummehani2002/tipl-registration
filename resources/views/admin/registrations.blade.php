@@ -25,6 +25,9 @@
         <div class="header">
             <h1>Admin: Registrations</h1>
             <p class="note">Shows all registrations submitted through the public form. Use the filter to view a specific link.</p>
+            @if(!empty($errorMessage))
+                <p style="color:#a33; margin: 16px 0;">{{ $errorMessage }}</p>
+            @endif
         </div>
 
         <form method="GET" action="{{ url('/admin/registrations') }}">
