@@ -30,7 +30,7 @@
     <header class="site-header">
         <img src="{{ asset(env('LOGO_PATH', 'logo.png')) }}" alt="Logo" onerror="this.style.display='none'" />
         <div>
-            <div class="site-title">TANSEEQ INVESTMENT PREMIER LEAGUE</div>
+            <div class="site-title">TIPL SEASON 6</div>
             <div class="site-sub">Player Registration</div>
         </div>
     </header>
