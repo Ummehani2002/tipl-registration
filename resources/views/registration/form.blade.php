@@ -45,8 +45,8 @@
             </div>
 
             <div>
-                <label for="cric_contact_no">Cric Heroes Contact No. *</label>
-                <input id="cric_contact_no" name="cric_contact_no" type="tel" value="{{ old('cric_contact_no', '+971') }}" required pattern="^\+971[0-9]{9}$" placeholder="+971501234567" maxlength="13" />
+                <label for="cric_contact_no">Cric Heroes Contact No.</label>
+                <input id="cric_contact_no" name="cric_contact_no" type="tel" value="{{ old('cric_contact_no', '+971') }}" pattern="^\+971[0-9]{9}$" placeholder="+971501234567" maxlength="13" />
             </div>
 
             <div>

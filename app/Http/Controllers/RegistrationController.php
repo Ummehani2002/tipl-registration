@@ -50,7 +50,7 @@ class RegistrationController extends Controller
             'designation' => 'nullable|string',
             'mobile_number' => ['required','regex:/^\+971[0-9]{9}$/'],
             'email' => 'required|email',
-            'cric_contact_no' => ['required','regex:/^\+971[0-9]{9}$/'],
+            'cric_contact_no' => ['nullable','regex:/^\+971[0-9]{9}$/'],
             'cric_id_name' => 'nullable|string',
             'playing_role' => 'nullable|string',
             'previous_team' => 'nullable|string',
