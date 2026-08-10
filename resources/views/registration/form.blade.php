@@ -6,7 +6,7 @@
         <img src="{{ asset(env('LOGO_PATH','logo.png')) }}" alt="{{ config('app.name') }}" style="height:48px" />
         <div>
             <div style="font-weight:700">{{ config('app.name') }}</div>
-            <h2 style="margin:0">Player Registration</h2>
+            <h2 style="margin:0">TIPL REGISTRATION</h2>
         </div>
     </div>
     <form method="POST" action="{{ url('/register/'.$link->token) }}">
