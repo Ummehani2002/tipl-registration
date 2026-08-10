@@ -44,11 +44,11 @@ class RegistrationController extends Controller
 
         $data = $request->validate([
             'full_name' => 'required|string|max:255',
-            'date_of_birth' => 'nullable|date',
+            'date_of_birth' => 'required|date',
             'company' => 'nullable|string',
-            'employee_id' => 'nullable|string',
+            'employee_id' => 'required|digits:5',
             'designation' => 'nullable|string',
-            'mobile_number' => 'nullable|string',
+            'mobile_number' => ['required','regex:/^\+971[0-9]{9}$/'],
             'email' => 'nullable|email',
             'cric_contact_no' => 'nullable|string',
             'cric_id_name' => 'nullable|string',

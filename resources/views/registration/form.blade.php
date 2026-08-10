@@ -18,6 +18,11 @@
             </div>
 
             <div>
+                <label for="date_of_birth">Date of Birth *</label>
+                <input id="date_of_birth" type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required />
+            </div>
+
+            <div>
                 <label for="company">Company</label>
                 <select id="company" name="company">
                     @foreach($companies as $c)
@@ -27,8 +32,8 @@
             </div>
 
             <div>
-                <label for="employee_id">Employee ID</label>
-                <input id="employee_id" name="employee_id" value="{{ old('employee_id') }}" />
+                <label for="employee_id">Employee ID *</label>
+                <input id="employee_id" name="employee_id" value="{{ old('employee_id') }}" required pattern="[0-9]{5}" minlength="5" maxlength="5" placeholder="5 digits" />
             </div>
 
             <div>
@@ -37,8 +42,8 @@
             </div>
 
             <div>
-                <label for="mobile_number">Mobile Number</label>
-                <input id="mobile_number" name="mobile_number" value="{{ old('mobile_number') }}" placeholder="e.g. +971501234567" />
+                <label for="mobile_number">Mobile Number *</label>
+                <input id="mobile_number" name="mobile_number" type="tel" value="{{ old('mobile_number', '+971') }}" required pattern="^\+971[0-9]{9}$" placeholder="+971501234567" maxlength="13" />
             </div>
 
             <div>
@@ -77,11 +82,6 @@
                     <input type="date" name="availability_to" value="{{ old('availability_to') }}" style="max-width:220px" />
                     <label style="display:flex;align-items:center"><input type="checkbox" name="availability_none" {{ old('availability_none') ? 'checked' : '' }} style="margin-right:6px" /> None</label>
                 </div>
-            </div>
-
-            <div>
-                <label for="current_location">Current Location</label>
-                <input id="current_location" name="current_location" value="{{ old('current_location') }}" />
             </div>
 
             <div>
