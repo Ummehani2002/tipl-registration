@@ -2,13 +2,6 @@
 
 @section('content')
 <div class="card">
-    <div class="form-header" style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-        <img src="{{ asset(env('LOGO_PATH','logo.png')) }}" alt="{{ config('app.name') }}" style="height:48px" />
-        <div>
-            <div style="font-weight:700">{{ config('app.name') }}</div>
-            <h2 style="margin:0">TIPL REGISTRATION</h2>
-        </div>
-    </div>
     <form method="POST" action="{{ url('/register/'.$link->token) }}">
         @csrf
         <div class="row">
