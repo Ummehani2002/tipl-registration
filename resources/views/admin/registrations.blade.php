@@ -1,13 +1,35 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container">
-        <h2>Registrations (Admin only)</h2>
-        <p>Only authenticated admins can access this page. It shows full details of each submitted registration.</p>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Registrations</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f9fb; color: #111; }
+        .page { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: #ffffff; padding: 16px 20px; border-bottom: 1px solid #ddd; }
+        h1 { margin: 0; font-size: 24px; }
+        p { margin: 8px 0 20px; color: #555; }
+        form { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; }
+        select { padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; min-width: 260px; }
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th { background: #f1f5f9; font-weight: 700; }
+        tbody tr:nth-child(odd) { background: #fafafa; }
+        .note { margin: 0 0 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>Admin: Registrations</h1>
+            <p class="note">Shows all registrations submitted through the public form. Use the filter to view a specific link.</p>
+        </div>
 
         <form method="GET" action="{{ url('/admin/registrations') }}">
-            <label>Filter by link</label>
-            <select name="link_id" onchange="this.form.submit()">
+            <label for="link_id">Filter by link</label>
+            <select id="link_id" name="link_id" onchange="this.form.submit()">
                 <option value="">All</option>
                 @foreach($links as $l)
                     <option value="{{ $l->id }}" {{ request('link_id') == $l->id ? 'selected' : '' }}>{{ $l->id }} - {{ $l->name ?? $l->token }}</option>
@@ -15,7 +37,7 @@
             </select>
         </form>
 
-        <table border="1" cellpadding="6" style="width:100%; margin-top:12px">
+        <table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -38,7 +60,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($registrations as $r)
+                @forelse($registrations as $r)
                     <tr>
                         <td>{{ $r->id }}</td>
                         <td>{{ $r->full_name }}</td>
@@ -64,8 +86,13 @@
                         <td>{{ optional($r->formLink)->name ?? optional($r->formLink)->token ?? $r->form_link_id }}</td>
                         <td>{{ $r->created_at }}</td>
                     </tr>
-                @endforeach
-        </tbody>
-    </table>
-</div>
-@endsection
+                @empty
+                    <tr>
+                        <td colspan="17">No registrations found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
