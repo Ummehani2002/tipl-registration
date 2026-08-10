@@ -56,6 +56,6 @@ Route::get('/admin/registrations', function (Request $request) use ($checkAdmin)
 });
 
 // Public registration form by token
+Route::get('/register/thanks', [RegistrationController::class, 'thankYou'])->name('register.thanks');
 Route::get('/register/{token}', [RegistrationController::class, 'showForm'])->name('register.show');
 Route::post('/register/{token}', [RegistrationController::class, 'submitForm'])->name('register.submit');
-Route::get('/register/thanks', [RegistrationController::class, 'thankYou'])->name('register.thanks');
