@@ -1,8 +1,15 @@
 <?php
 
+use App\Support\RegistrationDeadline;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (RegistrationDeadline::isClosed()) {
+        return response()->view('registration.closed', [
+            'closesAt' => RegistrationDeadline::closesAt(),
+        ], 403);
+    }
+
     $token = env('DEFAULT_FORM_TOKEN');
     if ($token) {
         return redirect('/register/'.$token);
@@ -36,35 +43,35 @@ $checkAdmin = function (Request $request) {
 
 Route::get('/admin/form-links', function (Request $request) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'indexLinks']);
+    return app(RegistrationController::class)->indexLinks();
 });
 Route::post('/admin/form-links', function (Request $request) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'storeLink'], ['request' => $request]);
+    return app(RegistrationController::class)->storeLink($request);
 });
 Route::get('/admin/form-links/{id}/export', function (Request $request, $id) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'exportCsv'], ['id' => $id]);
+    return app(RegistrationController::class)->exportCsv($id);
 });
 Route::get('/admin/form-links/{id}/export-xlsx', function (Request $request, $id) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'exportXlsx'], ['id' => $id]);
+    return app(RegistrationController::class)->exportXlsx($id);
 });
 Route::get('/admin/registrations', function (Request $request) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'indexRegistrations'], ['request' => $request]);
+    return app(RegistrationController::class)->indexRegistrations($request);
 });
 Route::get('/admin/registrations/link/{token}', function (Request $request, $token) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'showRegistrationsByToken'], ['token' => $token]);
+    return app(RegistrationController::class)->showRegistrationsByToken($token);
 });
 Route::get('/admin/registrations/export', function (Request $request) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'exportAllCsv'], ['request' => $request]);
+    return app(RegistrationController::class)->exportAllCsv($request);
 });
 Route::get('/admin/registrations/export-xlsx', function (Request $request) use ($checkAdmin) {
     if ($resp = $checkAdmin($request)) return $resp;
-    return app()->call([RegistrationController::class, 'exportAllXlsx'], ['request' => $request]);
+    return app(RegistrationController::class)->exportAllXlsx($request);
 });
 
 // Public registration form by token

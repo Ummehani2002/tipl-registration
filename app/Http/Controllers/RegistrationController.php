@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FormLink;
 use App\Models\Registration;
+use App\Support\RegistrationDeadline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -31,6 +32,10 @@ class RegistrationController extends Controller
     // Public: show form by token
     public function showForm($token)
     {
+        if (RegistrationDeadline::isClosed()) {
+            return $this->closedResponse();
+        }
+
         $link = FormLink::where('token', $token)->firstOrFail();
         $companies = collect(config('companies.list', ['Other']))->map(function($c) {
             return mb_strtoupper($c);
@@ -41,6 +46,10 @@ class RegistrationController extends Controller
 
     public function submitForm(Request $request, $token)
     {
+        if (RegistrationDeadline::isClosed()) {
+            return $this->closedResponse();
+        }
+
         $link = FormLink::where('token', $token)->firstOrFail();
 
         // If the user left the Cric Heroes contact input at the placeholder '+971',
@@ -83,6 +92,13 @@ class RegistrationController extends Controller
     public function thankYou()
     {
         return view('registration.thanks');
+    }
+
+    private function closedResponse()
+    {
+        return response()->view('registration.closed', [
+            'closesAt' => RegistrationDeadline::closesAt(),
+        ], 403);
     }
 
     // Export CSV of registrations for a link
