@@ -622,6 +622,9 @@ class RunRegistrationController extends Controller
             'password' => 'required',
         ]);
 
+        // If admin user is missing, create/update it from Cloud env when credentials match
+        $this->bootstrapAdminFromEnv($credentials['email'], $credentials['password']);
+
         // Try to authenticate with email and password
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
@@ -634,6 +637,39 @@ class RunRegistrationController extends Controller
         return redirect()->back()
             ->withInput($request->only('email'))
             ->with('error', 'Invalid email or password. Please check your credentials and try again.');
+    }
+
+    /**
+     * Create or reset super-admin user when login matches SUPER_ADMIN_EMAILS + ADMIN_PASSWORD.
+     */
+    private function bootstrapAdminFromEnv(string $email, string $password): void
+    {
+        $configuredPassword = (string) config('admin.password', '');
+        $superAdminEmails = (string) config('admin.super_admin_emails', '');
+        $emails = array_values(array_filter(array_map('trim', explode(',', $superAdminEmails))));
+
+        if ($configuredPassword === '' || empty($emails)) {
+            return;
+        }
+
+        if (!in_array($email, $emails, true) || !hash_equals($configuredPassword, $password)) {
+            return;
+        }
+
+        $name = ucfirst(str_replace(['.', '_'], ' ', explode('@', $email)[0]));
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            $user->password = Hash::make($configuredPassword);
+            $user->save();
+            return;
+        }
+
+        User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => Hash::make($configuredPassword),
+        ]);
     }
 
     public function logout(Request $request)
