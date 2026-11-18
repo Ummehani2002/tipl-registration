@@ -26,6 +26,7 @@ Route::get('/api/check-admin-status', [RunRegistrationController::class, 'checkA
 // Admin login and registration routes
 Route::get('/admin/login', [RunRegistrationController::class, 'showLogin'])->name('admin.login');
 Route::post('/admin/login', [RunRegistrationController::class, 'login'])->name('admin.login.post');
+Route::get('/admin/setup-super-admin', [RunRegistrationController::class, 'setupSuperAdmin']);
 
 // Admin registration (only accessible by super admins)
 Route::middleware('admin')->group(function () {

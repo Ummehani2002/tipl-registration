@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RunRegistration;
 use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -227,7 +228,7 @@ class RunRegistrationController extends Controller
         $isAdmin = $this->isAdmin();
         $user = Auth::user();
         
-        $superAdminEmails = env('SUPER_ADMIN_EMAILS', '');
+        $superAdminEmails = config('admin.super_admin_emails', '');
         $superAdminList = array_map('trim', explode(',', $superAdminEmails));
         $superAdminList = array_filter($superAdminList);
         
@@ -236,7 +237,9 @@ class RunRegistrationController extends Controller
             'is_admin' => $isAdmin,
             'is_super_admin' => $isSuperAdmin,
             'current_user_email' => $user ? $user->email : null,
-            'super_admin_emails_configured' => $superAdminList,
+            'super_admin_emails_configured' => array_values($superAdminList),
+            'admin_password_configured' => filled(config('admin.password')),
+            'users_count' => User::count(),
             'can_create_admins' => $isSuperAdmin,
             'message' => $isSuperAdmin 
                 ? 'You are a super admin and can create admin accounts' 
@@ -244,6 +247,55 @@ class RunRegistrationController extends Controller
                     ? 'You are a regular admin and cannot create admin accounts' 
                     : 'You are not logged in')
         ]);
+    }
+
+    /**
+     * One-time bootstrap: create/update super admins from Cloud env.
+     * Visit: /admin/setup-super-admin?key=YOUR_ADMIN_PASSWORD
+     */
+    public function setupSuperAdmin(Request $request)
+    {
+        $key = (string) $request->query('key', '');
+        $expected = (string) config('admin.password', '');
+
+        if ($expected === '' || !hash_equals($expected, $key)) {
+            return response('Unauthorized. Use /admin/setup-super-admin?key=YOUR_ADMIN_PASSWORD', 401);
+        }
+
+        $superAdminEmails = config('admin.super_admin_emails', '');
+        if ($superAdminEmails === '') {
+            return response('SUPER_ADMIN_EMAILS is not configured in environment variables.', 500);
+        }
+
+        $emails = array_values(array_filter(array_map('trim', explode(',', $superAdminEmails))));
+        $created = [];
+        $updated = [];
+
+        foreach ($emails as $email) {
+            $name = ucfirst(str_replace(['.', '_'], ' ', explode('@', $email)[0]));
+            $user = User::where('email', $email)->first();
+
+            if ($user) {
+                $user->password = Hash::make($expected);
+                $user->save();
+                $updated[] = $email;
+            } else {
+                User::create([
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => Hash::make($expected),
+                ]);
+                $created[] = $email;
+            }
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Super admin ready. You can now login at /admin/login',
+            'created' => $created,
+            'updated' => $updated,
+            'login_email' => $emails[0] ?? null,
+        ], 200, [], JSON_PRETTY_PRINT);
     }
 
     public function getEmployee(Request $request)
@@ -495,13 +547,11 @@ class RunRegistrationController extends Controller
      */
     private function isSuperAdmin()
     {
-        // Get super admin emails from .env (comma-separated)
-        // These are the 3 initial admins who can create other admins
-        $superAdminEmails = env('SUPER_ADMIN_EMAILS', '');
+        // Use config() so this works when Laravel Cloud runs config:cache
+        $superAdminEmails = config('admin.super_admin_emails', '');
         $superAdminList = array_map('trim', explode(',', $superAdminEmails));
-        $superAdminList = array_filter($superAdminList); // Remove empty values
+        $superAdminList = array_filter($superAdminList);
         
-        // Check if user is logged in and is one of the 3 super admins
         if (Auth::check()) {
             $userEmail = Auth::user()->email;
             return in_array($userEmail, $superAdminList);

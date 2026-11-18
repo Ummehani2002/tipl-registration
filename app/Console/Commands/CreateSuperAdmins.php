@@ -13,10 +13,10 @@ class CreateSuperAdmins extends Command
 
     public function handle()
     {
-        $superAdminEmails = env('SUPER_ADMIN_EMAILS', '');
+        $superAdminEmails = config('admin.super_admin_emails', '');
         
         if (empty($superAdminEmails)) {
-            $this->error('SUPER_ADMIN_EMAILS is not set in .env file!');
+            $this->error('SUPER_ADMIN_EMAILS is not set in environment / config!');
             return 1;
         }
 
@@ -28,10 +28,10 @@ class CreateSuperAdmins extends Command
             return 1;
         }
 
-        $adminPassword = env('ADMIN_PASSWORD', 'admin123');
+        $adminPassword = config('admin.password', 'admin123');
         
         $this->info('Creating super admin accounts...');
-        $this->info('Using password from ADMIN_PASSWORD in .env');
+        $this->info('Using password from ADMIN_PASSWORD');
         $this->newLine();
 
         foreach ($emails as $email) {
