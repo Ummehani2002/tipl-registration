@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tanseeq Run - Registrations List (Admin)</title>
+    <title>Tanseeq Badminton - Registrations List (Admin)</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -23,11 +21,7 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
+        h2 { color: #0a1628; margin-bottom: 15px; font-size: 20px; }
         .action-buttons {
             margin-bottom: 15px;
             display: flex;
@@ -47,29 +41,9 @@
             flex: 1 1 auto;
             min-width: 120px;
         }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn-success:hover {
-            background-color: #218838;
-        }
-        .btn-edit {
-            background-color: #ffc107;
-            color: #000;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-        .btn-edit:hover {
-            background-color: #e0a800;
-        }
+        .btn-primary { background-color: #0a1628; color: #b8e000; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-edit { background-color: #ffc107; color: #000; padding: 5px 10px; font-size: 12px; }
         .table-wrapper {
             overflow-x: auto;
             overflow-y: auto;
@@ -82,7 +56,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
-            min-width: 800px;
+            min-width: 1100px;
         }
         th, td {
             border: 1px solid #ddd;
@@ -91,25 +65,15 @@
             white-space: nowrap;
         }
         th {
-            background-color: #333;
+            background-color: #0a1628;
             color: white;
             font-weight: bold;
             position: sticky;
             top: 0;
             z-index: 10;
-            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .count {
-            margin-bottom: 15px;
-            font-size: 16px;
-            font-weight: bold;
-        }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .count { margin-bottom: 15px; font-size: 16px; font-weight: bold; }
         .success-message {
             background-color: #d4edda;
             color: #155724;
@@ -119,66 +83,29 @@
             font-size: 14px;
         }
         @media (max-width: 576px) {
-            body {
-                padding: 5px;
-                font-size: 14px;
-            }
-            .container {
-                padding: 10px;
-            }
-            h2 {
-                font-size: 18px;
-                margin-bottom: 12px;
-            }
-            .action-buttons {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .btn {
-                width: 100%;
-                padding: 12px;
-                font-size: 15px;
-            }
-            .count {
-                font-size: 14px;
-            }
-            .table-wrapper {
-                max-height: calc(100vh - 180px);
-            }
-            table {
-                font-size: 11px;
-            }
-            th, td {
-                padding: 6px 4px;
-            }
-            th {
-                z-index: 10;
-            }
-            .btn-edit {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
+            body { padding: 5px; font-size: 14px; }
+            .action-buttons { flex-direction: column; }
+            .btn { width: 100%; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Tanseeq Run - All Registrations (Admin)</h2>
+        <h2>Tanseeq Badminton Championship - All Registrations (Admin)</h2>
         
         @if(session('success'))
             <div class="success-message">{{ session('success') }}</div>
         @endif
         
         @if(session('error'))
-            <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb;">
+            <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #f5c6cb;">
                 {{ session('error') }}
             </div>
         @endif
         
         @if(isset($isSuperAdmin) && !$isSuperAdmin)
             <div style="background: #fff3cd; color: #856404; padding: 12px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #ffeaa7;">
-                <strong>ℹ️ Info:</strong> You are logged in as a regular admin. Only super admins can create new admin accounts. 
-                To create admin accounts, you need to login with a super admin email (set in SUPER_ADMIN_EMAILS in .env file).
+                <strong>ℹ️ Info:</strong> You are logged in as a regular admin. Only super admins can create new admin accounts.
             </div>
         @endif
         
@@ -199,14 +126,17 @@
                 <tr>
                     <th>#</th>
                     <th>Registration ID</th>
-                    <th>Bib Number</th>
                     <th>Employee ID</th>
                     <th>Name</th>
-                    <th>Designation</th>
                     <th>Company</th>
-                    <th>Contact Number</th>
-                    <th>RUN Category</th>
-                    <th>T-Shirt Size</th>
+                    <th>DOB</th>
+                    <th>Contact</th>
+                    <th>Trial Avail.</th>
+                    <th>Trial Transport</th>
+                    <th>Trial Pickup</th>
+                    <th>Tournament Avail.</th>
+                    <th>Tournament Transport</th>
+                    <th>Tournament Pickup</th>
                     <th>Attendance</th>
                     <th>Registered At</th>
                     <th>Action</th>
@@ -217,14 +147,17 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $r->registration_id ?? 'N/A' }}</td>
-                    <td>{{ $r->bib_number ?? '-' }}</td>
                     <td>{{ $r->employee_id }}</td>
                     <td>{{ $r->name }}</td>
-                    <td>{{ $r->designation }}</td>
                     <td>{{ $r->company }}</td>
+                    <td>{{ $r->dob ? \Illuminate\Support\Carbon::parse($r->dob)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $r->contact_number }}</td>
-                    <td>{{ $r->run_category }}</td>
-                    <td>{{ $r->tshirt_size }}</td>
+                    <td>{{ $r->trial_availability ?? '-' }}</td>
+                    <td>{{ $r->trial_transportation ?? '-' }}</td>
+                    <td>{{ $r->trial_pickup_location ?? '-' }}</td>
+                    <td>{{ $r->tournament_availability ?? '-' }}</td>
+                    <td>{{ $r->tournament_transportation ?? '-' }}</td>
+                    <td>{{ $r->tournament_pickup_location ?? '-' }}</td>
                     <td>
                         @if($r->attendance_status === 'present')
                             <span style="color: #28a745; font-weight: bold;">✓ Present</span>
@@ -239,7 +172,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="12" style="text-align: center; padding: 20px; color: #999;">
+                    <td colspan="16" style="text-align: center; padding: 20px; color: #999;">
                         No registrations found yet.
                     </td>
                 </tr>
@@ -248,6 +181,5 @@
         </table>
         </div>
     </div>
-
 </body>
 </html>

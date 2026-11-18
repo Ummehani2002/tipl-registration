@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-// app/Models/RunRegistration.php
 class RunRegistration extends Model
 {
     protected $fillable = [
@@ -17,8 +16,18 @@ class RunRegistration extends Model
         'run_category',
         'contact_number',
         'tshirt_size',
+        'trial_availability',
+        'trial_transportation',
+        'trial_pickup_location',
+        'tournament_availability',
+        'tournament_transportation',
+        'tournament_pickup_location',
         'registration_id',
         'bib_number',
         'attendance_status',
+    ];
+
+    protected $casts = [
+        'dob' => 'date',
     ];
 }

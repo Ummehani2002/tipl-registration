@@ -92,8 +92,8 @@
             <div class="card shadow">
                 <div class="card-body">
                     <h3 class="card-title">
-                        <span class="running-icon">🏃</span>
-                        Tanseeq Run - Season 3
+                        <span class="running-icon">🏸</span>
+                        Tanseeq Badminton Championship - Season 4
                     </h3>
                     
                     <div class="closed-icon">⏰</div>

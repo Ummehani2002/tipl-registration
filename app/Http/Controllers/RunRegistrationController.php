@@ -9,19 +9,20 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 
 class RunRegistrationController extends Controller
 {
     /**
      * Check if registration is closed
-     * Registration closes on January 8th, 2026 at 12:00 AM (midnight)
-     * This means it works all day on Jan 6th and Jan 7th, closes at start of Jan 8th
-     * 
+     * Closes on 21 November 2026 at night 12:00 AM Dubai time
+     * (open all day on 21 Nov; closed from 22 Nov 00:00 Asia/Dubai)
+     *
      * @param Carbon|null $testTime Optional test time to simulate different times
      */
     private function isRegistrationClosed($testTime = null)
     {
-        // Get deadline from environment or use default (Jan 8, 2026 at 12 AM)
+        // Get deadline from environment or use default (night of 21 Nov 2026 = 22 Nov 00:00 Dubai)
         $deadline = env('REGISTRATION_DEADLINE', null);
         
         // Get local timezone from env or default to Asia/Dubai (Dubai/UAE timezone)
@@ -31,8 +32,8 @@ class RunRegistrationController extends Controller
             // Parse deadline assuming it's in local timezone (not UTC)
             $deadlineTime = Carbon::parse($deadline, $localTimezone);
         } else {
-            // Default: January 8th, 2026 at 12:00 AM (midnight) in local timezone
-            $deadlineTime = Carbon::create(2026, 1, 8, 0, 0, 0, $localTimezone);
+            // Default: night of 21 Nov 2026 at 12:00 AM Dubai = 22 Nov 2026 00:00:00 Asia/Dubai
+            $deadlineTime = Carbon::create(2026, 11, 22, 0, 0, 0, $localTimezone);
         }
         
         $currentTime = $testTime ?? now();
@@ -55,7 +56,7 @@ class RunRegistrationController extends Controller
             // Parse deadline assuming it's in local timezone
             $deadlineTime = Carbon::parse($deadline, $localTimezone);
         } else {
-            $deadlineTime = Carbon::create(2026, 1, 8, 0, 0, 0, $localTimezone);
+            $deadlineTime = Carbon::create(2026, 11, 22, 0, 0, 0, $localTimezone);
         }
         
         $currentTime = $currentTime->setTimezone($localTimezone);
@@ -93,7 +94,7 @@ class RunRegistrationController extends Controller
         if ($deadline) {
             $deadlineTime = Carbon::parse($deadline);
         } else {
-            $deadlineTime = Carbon::create(2026, 1, 8, 0, 0, 0);
+            $deadlineTime = Carbon::create(2026, 11, 22, 0, 0, 0);
         }
         
         // Test times to check
@@ -108,11 +109,10 @@ class RunRegistrationController extends Controller
         } else {
             // Default test times
             $testTimes = [
-                ['label' => 'Today 11:50 AM', 'time' => Carbon::create(2026, 1, 6, 11, 50, 0)],
-                ['label' => 'Tomorrow 11:50 AM', 'time' => Carbon::create(2026, 1, 7, 11, 50, 0)],
-                ['label' => 'Tomorrow 11:59 PM', 'time' => Carbon::create(2026, 1, 7, 23, 59, 59)],
-                ['label' => 'Jan 8th 12:00 AM', 'time' => Carbon::create(2026, 1, 8, 0, 0, 0)],
-                ['label' => 'Jan 8th 12:01 AM', 'time' => Carbon::create(2026, 1, 8, 0, 1, 0)],
+                ['label' => 'Nov 21 11:50 AM', 'time' => Carbon::create(2026, 11, 21, 11, 50, 0)],
+                ['label' => 'Nov 21 11:59 PM', 'time' => Carbon::create(2026, 11, 21, 23, 59, 59)],
+                ['label' => 'Nov 22 12:00 AM', 'time' => Carbon::create(2026, 11, 22, 0, 0, 0)],
+                ['label' => 'Nov 22 12:01 AM', 'time' => Carbon::create(2026, 11, 22, 0, 1, 0)],
             ];
         }
         
@@ -297,70 +297,77 @@ class RunRegistrationController extends Controller
             return back()->withErrors(['registration_closed' => 'Registration is now closed. The deadline has passed.'])->withInput();
         }
 
+        $companies = [
+            'Proscape LLC',
+            'Stones & Slates LLC',
+            'Tanseeq',
+            'Metaline',
+            'Timbertech',
+            'Proscape Golf',
+            'Proscape FM',
+            'Acacia',
+        ];
+
+        $pickupLocations = [
+            'ADCB Metro Station',
+            'International City',
+            'Al Quoz',
+            'Rashidiya Metro Station',
+            'Etisalat Metro Station',
+            'DIP/Jebel Ali',
+        ];
+
         $request->validate([
+            'company' => ['required', Rule::in($companies)],
+            'name' => 'required|string|max:255',
             'employee_id' => 'required|unique:run_registrations',
-            'name' => 'required',
-            'designation' => 'required',
-            'company' => 'required',
-            'run_category' => 'required|in:2.5KM,5KM,10KM',
-            'contact_number' => 'required|digits_between:10,12',
-            'tshirt_size' => 'required|in:S,M,L,XL,XXL,XXXL',
+            'dob' => 'required|date',
+            'contact_number' => 'required|digits_between:8,15',
+            'trial_availability' => 'required|in:Yes,No',
+            'trial_transportation' => 'required|in:Yes,No',
+            'trial_pickup_location' => ['nullable', 'required_if:trial_transportation,Yes', Rule::in($pickupLocations)],
+            'tournament_availability' => 'required|in:Yes,No',
+            'tournament_transportation' => 'required|in:Yes,No',
+            'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
         ]);
 
-        // Generate unique registration ID based on run category
-        // Format: S3-XXXX where XXXX starts from category-specific number
-        $startNumber = 0;
-        switch ($request->run_category) {
-            case '2.5KM':
-                $startNumber = 2501; // Starts from S3-2501
-                break;
-            case '5KM':
-                $startNumber = 5001; // Starts from S3-5001
-                break;
-            case '10KM':
-                $startNumber = 10001; // Starts from S3-10001
-                break;
-            default:
-                $startNumber = 1;
-        }
-        
-        // Find the highest existing registration ID for this category
-        $existingRegistrations = RunRegistration::where('run_category', $request->run_category)
-            ->where('registration_id', 'like', 'S3-%')
-            ->get();
-        
-        $maxNumber = $startNumber - 1; // Start from the base number
-        
+        // Generate unique registration ID: BC4-XXXX
+        $existingRegistrations = RunRegistration::where('registration_id', 'like', 'BC4-%')->get();
+        $maxNumber = 1000;
+
         foreach ($existingRegistrations as $reg) {
-            // Extract number from registration_id (e.g., "S3-2501" -> 2501)
-            if (preg_match('/S3-(\d+)/', $reg->registration_id, $matches)) {
-                $regNumber = (int)$matches[1];
-                if ($regNumber >= $startNumber && $regNumber > $maxNumber) {
+            if (preg_match('/BC4-(\d+)/', $reg->registration_id, $matches)) {
+                $regNumber = (int) $matches[1];
+                if ($regNumber > $maxNumber) {
                     $maxNumber = $regNumber;
                 }
             }
         }
-        
-        // Generate next sequential number
+
         $nextNumber = $maxNumber + 1;
-        $registrationId = 'S3-' . $nextNumber;
-        
-        // Double-check it doesn't exist (safety check)
+        $registrationId = 'BC4-' . $nextNumber;
+
         while (RunRegistration::where('registration_id', $registrationId)->exists()) {
             $nextNumber++;
-            $registrationId = 'S3-' . $nextNumber;
+            $registrationId = 'BC4-' . $nextNumber;
         }
 
-        $registration = RunRegistration::create([
+        RunRegistration::create([
             'employee_id' => $request->employee_id,
             'name' => $request->name,
-            'designation' => $request->designation,
+            'designation' => 'Player',
             'company' => $request->company,
-            'run_category' => $request->run_category,
+            'dob' => $request->dob,
+            'run_category' => 'Badminton',
             'contact_number' => $request->contact_number,
-            'tshirt_size' => $request->tshirt_size,
+            'tshirt_size' => 'N/A',
+            'trial_availability' => $request->trial_availability,
+            'trial_transportation' => $request->trial_transportation,
+            'trial_pickup_location' => $request->trial_transportation === 'Yes' ? $request->trial_pickup_location : null,
+            'tournament_availability' => $request->tournament_availability,
+            'tournament_transportation' => $request->tournament_transportation,
+            'tournament_pickup_location' => $request->tournament_transportation === 'Yes' ? $request->tournament_pickup_location : null,
             'registration_id' => $registrationId,
-            // Bib number will be assigned later by admin
         ]);
 
         return redirect()->back()->with([
@@ -505,23 +512,51 @@ class RunRegistrationController extends Controller
     public function update(Request $request, $id)
     {
         $registration = RunRegistration::findOrFail($id);
-        
+
+        $companies = [
+            'Proscape LLC',
+            'Stones & Slates LLC',
+            'Tanseeq',
+            'Metaline',
+            'Timbertech',
+            'Proscape Golf',
+            'Proscape FM',
+            'Acacia',
+        ];
+
+        $pickupLocations = [
+            'ADCB Metro Station',
+            'International City',
+            'Al Quoz',
+            'Rashidiya Metro Station',
+            'Etisalat Metro Station',
+            'DIP/Jebel Ali',
+        ];
+
         $request->validate([
-            'name' => 'required',
-            'designation' => 'required',
-            'company' => 'required',
-            'run_category' => 'required|in:2.5KM,5KM,10KM',
-            'contact_number' => 'required|digits_between:10,12',
-            'tshirt_size' => 'required|in:S,M,L,XL,XXL,XXXL',
+            'name' => 'required|string|max:255',
+            'company' => ['required', Rule::in($companies)],
+            'dob' => 'required|date',
+            'contact_number' => 'required|digits_between:8,15',
+            'trial_availability' => 'required|in:Yes,No',
+            'trial_transportation' => 'required|in:Yes,No',
+            'trial_pickup_location' => ['nullable', 'required_if:trial_transportation,Yes', Rule::in($pickupLocations)],
+            'tournament_availability' => 'required|in:Yes,No',
+            'tournament_transportation' => 'required|in:Yes,No',
+            'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
         ]);
 
         $registration->update([
             'name' => $request->name,
-            'designation' => $request->designation,
             'company' => $request->company,
-            'run_category' => $request->run_category,
+            'dob' => $request->dob,
             'contact_number' => $request->contact_number,
-            'tshirt_size' => $request->tshirt_size,
+            'trial_availability' => $request->trial_availability,
+            'trial_transportation' => $request->trial_transportation,
+            'trial_pickup_location' => $request->trial_transportation === 'Yes' ? $request->trial_pickup_location : null,
+            'tournament_availability' => $request->tournament_availability,
+            'tournament_transportation' => $request->tournament_transportation,
+            'tournament_pickup_location' => $request->tournament_transportation === 'Yes' ? $request->tournament_pickup_location : null,
         ]);
 
         return redirect()->route('registrations.list')->with('success', 'Registration updated successfully!');
@@ -531,7 +566,7 @@ class RunRegistrationController extends Controller
     {
         $registrations = RunRegistration::latest()->get();
         
-        $filename = 'tanseeq_run_registrations_' . date('Y-m-d_His') . '.csv';
+        $filename = 'tanseeq_badminton_registrations_' . date('Y-m-d_His') . '.csv';
         
         $headers = [
             'Content-Type' => 'text/csv',
@@ -547,14 +582,17 @@ class RunRegistrationController extends Controller
             // Header row
             fputcsv($file, [
                 'Registration ID',
-                'Bib Number',
                 'Employee ID',
                 'Name',
-                'Designation',
                 'Company',
+                'DOB',
                 'Contact Number',
-                'RUN Category',
-                'T-Shirt Size',
+                'Trial Availability',
+                'Trial Transportation',
+                'Trial Pickup Location',
+                'Tournament Availability',
+                'Tournament Transportation',
+                'Tournament Pickup Location',
                 'Attendance Status',
                 'Registered At'
             ]);
@@ -563,14 +601,17 @@ class RunRegistrationController extends Controller
             foreach ($registrations as $r) {
                 fputcsv($file, [
                     $r->registration_id ?? 'N/A',
-                    $r->bib_number ?? '-',
                     $r->employee_id,
                     $r->name,
-                    $r->designation,
                     $r->company,
+                    $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
-                    $r->run_category,
-                    $r->tshirt_size,
+                    $r->trial_availability ?? '-',
+                    $r->trial_transportation ?? '-',
+                    $r->trial_pickup_location ?? '-',
+                    $r->tournament_availability ?? '-',
+                    $r->tournament_transportation ?? '-',
+                    $r->tournament_pickup_location ?? '-',
                     $r->attendance_status ?? 'pending',
                     $r->created_at ? $r->created_at->format('d/m/Y H:i') : 'N/A'
                 ]);
@@ -637,7 +678,7 @@ class RunRegistrationController extends Controller
             ->latest()
             ->get();
         
-        $filename = 'tanseeq_run_presentees_' . date('Y-m-d_His') . '.csv';
+        $filename = 'tanseeq_badminton_presentees_' . date('Y-m-d_His') . '.csv';
         
         $headers = [
             'Content-Type' => 'text/csv',
@@ -653,14 +694,17 @@ class RunRegistrationController extends Controller
             // Header row
             fputcsv($file, [
                 'Registration ID',
-                'Bib Number',
                 'Employee ID',
                 'Name',
-                'Designation',
                 'Company',
+                'DOB',
                 'Contact Number',
-                'RUN Category',
-                'T-Shirt Size',
+                'Trial Availability',
+                'Trial Transportation',
+                'Trial Pickup Location',
+                'Tournament Availability',
+                'Tournament Transportation',
+                'Tournament Pickup Location',
                 'Registered At'
             ]);
             
@@ -668,14 +712,17 @@ class RunRegistrationController extends Controller
             foreach ($registrations as $r) {
                 fputcsv($file, [
                     $r->registration_id ?? 'N/A',
-                    $r->bib_number ?? '-',
                     $r->employee_id,
                     $r->name,
-                    $r->designation,
                     $r->company,
+                    $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
-                    $r->run_category,
-                    $r->tshirt_size,
+                    $r->trial_availability ?? '-',
+                    $r->trial_transportation ?? '-',
+                    $r->trial_pickup_location ?? '-',
+                    $r->tournament_availability ?? '-',
+                    $r->tournament_transportation ?? '-',
+                    $r->tournament_pickup_location ?? '-',
                     $r->created_at ? $r->created_at->format('d/m/Y H:i') : 'N/A'
                 ]);
             }
@@ -693,7 +740,7 @@ class RunRegistrationController extends Controller
             ->latest()
             ->get();
         
-        $filename = 'tanseeq_run_presentees_' . date('Y-m-d_His') . '.csv';
+        $filename = 'tanseeq_badminton_presentees_' . date('Y-m-d_His') . '.csv';
         
         $headers = [
             'Content-Type' => 'text/csv',
@@ -709,14 +756,13 @@ class RunRegistrationController extends Controller
             // Header row - Attendance Sheet with attendance status
             fputcsv($file, [
                 'Registration ID',
-                'Bib Number',
                 'Employee ID',
                 'Name',
-                'Designation',
                 'Company',
+                'DOB',
                 'Contact Number',
-                'RUN Category',
-                'T-Shirt Size',
+                'Trial Availability',
+                'Tournament Availability',
                 'Attendance Status',
                 'Registered At'
             ]);
@@ -732,14 +778,13 @@ class RunRegistrationController extends Controller
                 
                 fputcsv($file, [
                     $r->registration_id ?? 'N/A',
-                    $r->bib_number ?? '-',
                     $r->employee_id,
                     $r->name,
-                    $r->designation,
                     $r->company,
+                    $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
-                    $r->run_category,
-                    $r->tshirt_size,
+                    $r->trial_availability ?? '-',
+                    $r->tournament_availability ?? '-',
                     $attendanceStatus,
                     $r->created_at ? $r->created_at->format('d/m/Y H:i') : 'N/A'
                 ]);
