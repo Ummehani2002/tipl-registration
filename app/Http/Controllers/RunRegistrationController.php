@@ -539,22 +539,7 @@ class RunRegistrationController extends Controller
 
     public function showLogin()
     {
-        try {
-            // Ensure core auth tables exist so login does not 500 on fresh Cloud DBs
-            if (!Schema::hasTable('users') || !Schema::hasTable('cache') || !Schema::hasTable('sessions')) {
-                $this->ensureCoreTables();
-            }
-
-            return view('admin.login');
-        } catch (\Throwable $e) {
-            Log::error('Admin login page failed', ['message' => $e->getMessage()]);
-
-            return response(
-                'Admin login temporarily unavailable: ' . $e->getMessage() .
-                ' — Run: php artisan migrate --force && php artisan config:clear',
-                500
-            );
-        }
+        return view('admin.login');
     }
 
     private function ensureCoreTables(): void
@@ -702,11 +687,12 @@ class RunRegistrationController extends Controller
         } catch (\Throwable $e) {
             Log::error('Admin login failed', ['message' => $e->getMessage()]);
 
-            return response(
-                'Login failed: ' . $e->getMessage() .
-                ' — Run: php artisan migrate --force && php artisan config:clear && php artisan route:clear',
-                500
-            );
+            $hint = 'Login failed: ' . $e->getMessage();
+            if (str_contains($e->getMessage(), 'sqlite') || str_contains($e->getMessage(), 'database.sqlite')) {
+                $hint = 'Database is not connected. In Laravel Cloud → tanseeq-badminton → attach a MySQL database, remove any DB_CONNECTION=sqlite custom env, then run: php artisan migrate --force && php artisan config:clear';
+            }
+
+            return redirect('/admin/login')->with('error', $hint);
         }
     }
 
