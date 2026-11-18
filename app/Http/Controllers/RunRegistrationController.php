@@ -537,7 +537,64 @@ class RunRegistrationController extends Controller
 
     public function showLogin()
     {
-        return view('admin.login');
+        try {
+            // Ensure core auth tables exist so login does not 500 on fresh Cloud DBs
+            if (!Schema::hasTable('users') || !Schema::hasTable('cache') || !Schema::hasTable('sessions')) {
+                $this->ensureCoreTables();
+            }
+
+            return view('admin.login');
+        } catch (\Throwable $e) {
+            Log::error('Admin login page failed', ['message' => $e->getMessage()]);
+
+            return response(
+                'Admin login temporarily unavailable: ' . $e->getMessage() .
+                ' — Run: php artisan migrate --force && php artisan config:clear',
+                500
+            );
+        }
+    }
+
+    private function ensureCoreTables(): void
+    {
+        if (!Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->timestamp('email_verified_at')->nullable();
+                $table->string('password');
+                $table->rememberToken();
+                $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasTable('sessions')) {
+            Schema::create('sessions', function (Blueprint $table) {
+                $table->string('id')->primary();
+                $table->foreignId('user_id')->nullable()->index();
+                $table->string('ip_address', 45)->nullable();
+                $table->text('user_agent')->nullable();
+                $table->longText('payload');
+                $table->integer('last_activity')->index();
+            });
+        }
+
+        if (!Schema::hasTable('cache')) {
+            Schema::create('cache', function (Blueprint $table) {
+                $table->string('key')->primary();
+                $table->mediumText('value');
+                $table->integer('expiration');
+            });
+        }
+
+        if (!Schema::hasTable('cache_locks')) {
+            Schema::create('cache_locks', function (Blueprint $table) {
+                $table->string('key')->primary();
+                $table->string('owner');
+                $table->integer('expiration');
+            });
+        }
     }
 
     /**
@@ -608,35 +665,47 @@ class RunRegistrationController extends Controller
 
     public function login(Request $request)
     {
-        $email = $request->input('email');
-        $password = $request->input('password');
+        try {
+            $this->ensureCoreTables();
 
-        // Email is now required for proper authentication
-        if (!$email) {
-            return redirect()->back()->with('error', 'Email address is required. Please enter your email to login.');
+            $email = $request->input('email');
+            $password = $request->input('password');
+
+            // Email is now required for proper authentication
+            if (!$email) {
+                return redirect('/admin/login')->with('error', 'Email address is required. Please enter your email to login.');
+            }
+
+            // Validate email and password
+            $credentials = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+            ]);
+
+            // If admin user is missing, create/update it from Cloud env when credentials match
+            $this->bootstrapAdminFromEnv($credentials['email'], $credentials['password']);
+
+            // Try to authenticate with email and password
+            if (Auth::attempt($credentials)) {
+                $request->session()->regenerate();
+                session(['admin_logged_in' => true]);
+                session(['admin_user_id' => Auth::id()]);
+                return redirect('/tanseeq-badminton/list')->with('success', 'Login successful!');
+            }
+
+            // If authentication fails, provide helpful error message
+            return redirect('/admin/login')
+                ->withInput($request->only('email'))
+                ->with('error', 'Invalid email or password. Please check your credentials and try again.');
+        } catch (\Throwable $e) {
+            Log::error('Admin login failed', ['message' => $e->getMessage()]);
+
+            return response(
+                'Login failed: ' . $e->getMessage() .
+                ' — Run: php artisan migrate --force && php artisan config:clear && php artisan route:clear',
+                500
+            );
         }
-
-        // Validate email and password
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        // If admin user is missing, create/update it from Cloud env when credentials match
-        $this->bootstrapAdminFromEnv($credentials['email'], $credentials['password']);
-
-        // Try to authenticate with email and password
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            session(['admin_logged_in' => true]);
-            session(['admin_user_id' => Auth::id()]);
-            return redirect()->route('registrations.list')->with('success', 'Login successful!');
-        }
-
-        // If authentication fails, provide helpful error message
-        return redirect()->back()
-            ->withInput($request->only('email'))
-            ->with('error', 'Invalid email or password. Please check your credentials and try again.');
     }
 
     /**

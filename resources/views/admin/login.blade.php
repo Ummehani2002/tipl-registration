@@ -95,18 +95,18 @@
                             </div>
                         @endif
 
-                        <form method="POST" action="{{ route('admin.login.post') }}">
+                        <form method="POST" action="{{ url('/admin/login') }}">
                             @csrf
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="email" name="email" 
-                                       placeholder="Enter your email address" value="{{ old('email') }}" required autofocus>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="Enter your email address" value="{{ old('email') }}" required autofocus autocomplete="username">
                                 <small class="text-muted">Enter your admin email address</small>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password" name="password" 
-                                       placeholder="Enter your password" required>
+                                <input type="password" class="form-control" id="password" name="password"
+                                       placeholder="Enter your password" required autocomplete="current-password">
                                 <small class="text-muted">Enter your account password</small>
                             </div>
 
