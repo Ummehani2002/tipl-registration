@@ -36,19 +36,20 @@ class CreateSuperAdmins extends Command
 
         foreach ($emails as $email) {
             $user = User::where('email', $email)->first();
-            
+            $name = explode('@', $email)[0];
+            $name = ucfirst(str_replace(['.', '_'], ' ', $name));
+
             if ($user) {
-                $this->warn("Super admin already exists: {$email}");
+                $user->password = Hash::make($adminPassword);
+                $user->save();
+                $this->info("✓ Updated password for existing super admin: {$email}");
             } else {
-                $name = explode('@', $email)[0];
-                $name = ucfirst(str_replace(['.', '_'], ' ', $name));
-                
                 User::create([
                     'name' => $name,
                     'email' => $email,
                     'password' => Hash::make($adminPassword),
                 ]);
-                
+
                 $this->info("✓ Created super admin: {$email}");
             }
         }
