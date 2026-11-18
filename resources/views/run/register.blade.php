@@ -191,6 +191,17 @@
                                     <option value="Proscape Golf" {{ old('company') == 'Proscape Golf' ? 'selected' : '' }}>Proscape Golf</option>
                                     <option value="Proscape FM" {{ old('company') == 'Proscape FM' ? 'selected' : '' }}>Proscape FM</option>
                                     <option value="Acacia" {{ old('company') == 'Acacia' ? 'selected' : '' }}>Acacia</option>
+                                    <option value="Acacia Garden Center" {{ old('company') == 'Acacia Garden Center' ? 'selected' : '' }}>Acacia Garden Center</option>
+                                    <option value="Bioscape" {{ old('company') == 'Bioscape' ? 'selected' : '' }}>Bioscape</option>
+                                    <option value="Water In Motion" {{ old('company') == 'Water In Motion' ? 'selected' : '' }}>Water In Motion</option>
+                                    <option value="Ventana" {{ old('company') == 'Ventana' ? 'selected' : '' }}>Ventana</option>
+                                    <option value="Transmech" {{ old('company') == 'Transmech' ? 'selected' : '' }}>Transmech</option>
+                                    <option value="Proscape Recycle" {{ old('company') == 'Proscape Recycle' ? 'selected' : '' }}>Proscape Recycle</option>
+                                    <option value="Tanseeq Projects" {{ old('company') == 'Tanseeq Projects' ? 'selected' : '' }}>Tanseeq Projects</option>
+                                    <option value="Landscape Elements" {{ old('company') == 'Landscape Elements' ? 'selected' : '' }}>Landscape Elements</option>
+                                    <option value="Apex Infra" {{ old('company') == 'Apex Infra' ? 'selected' : '' }}>Apex Infra</option>
+                                    <option value="Urban Design + Landscape Architecture" {{ old('company') == 'Urban Design + Landscape Architecture' ? 'selected' : '' }}>Urban Design + Landscape Architecture</option>
+                                    <option value="Tafani" {{ old('company') == 'Tafani' ? 'selected' : '' }}>Tafani</option>
                                 </select>
                             </div>
 

@@ -70,7 +70,7 @@
                             <div class="mb-3">
                                 <label for="company" class="form-label">Company <span class="text-danger">*</span></label>
                                 <select class="form-control form-select" id="company" name="company" required>
-                                    @foreach(['Proscape LLC','Stones & Slates LLC','Tanseeq','Metaline','Timbertech','Proscape Golf','Proscape FM','Acacia'] as $company)
+                                    @foreach(['Proscape LLC','Stones & Slates LLC','Tanseeq','Metaline','Timbertech','Proscape Golf','Proscape FM','Acacia','Acacia Garden Center','Bioscape','Water In Motion','Ventana','Transmech','Proscape Recycle','Tanseeq Projects','Landscape Elements','Apex Infra','Urban Design + Landscape Architecture','Tafani'] as $company)
                                         <option value="{{ $company }}" {{ $registration->company == $company ? 'selected' : '' }}>{{ $company }}</option>
                                     @endforeach
                                 </select>

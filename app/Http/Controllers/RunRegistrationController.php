@@ -408,6 +408,17 @@ class RunRegistrationController extends Controller
             'Proscape Golf',
             'Proscape FM',
             'Acacia',
+            'Acacia Garden Center',
+            'Bioscape',
+            'Water In Motion',
+            'Ventana',
+            'Transmech',
+            'Proscape Recycle',
+            'Tanseeq Projects',
+            'Landscape Elements',
+            'Apex Infra',
+            'Urban Design + Landscape Architecture',
+            'Tafani',
         ];
 
         $pickupLocations = [
@@ -803,6 +814,17 @@ class RunRegistrationController extends Controller
             'Proscape Golf',
             'Proscape FM',
             'Acacia',
+            'Acacia Garden Center',
+            'Bioscape',
+            'Water In Motion',
+            'Ventana',
+            'Transmech',
+            'Proscape Recycle',
+            'Tanseeq Projects',
+            'Landscape Elements',
+            'Apex Infra',
+            'Urban Design + Landscape Architecture',
+            'Tafani',
         ];
 
         $pickupLocations = [
