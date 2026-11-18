@@ -15,14 +15,14 @@ class RunRegistrationController extends Controller
 {
     /**
      * Check if registration is closed
-     * Closes on 21 November 2026 at night 12:00 AM Dubai time
-     * (open all day on 21 Nov; closed from 22 Nov 00:00 Asia/Dubai)
+     * Closes on 23 November 2026 at night 12:00 AM Dubai time
+     * (open all day on 23 Nov; closed from 24 Nov 00:00 Asia/Dubai)
      *
      * @param Carbon|null $testTime Optional test time to simulate different times
      */
     private function isRegistrationClosed($testTime = null)
     {
-        // Get deadline from environment or use default (night of 21 Nov 2026 = 22 Nov 00:00 Dubai)
+        // Get deadline from environment or use default (night of 23 Nov 2026 = 24 Nov 00:00 Dubai)
         $deadline = env('REGISTRATION_DEADLINE', null);
         
         // Get local timezone from env or default to Asia/Dubai (Dubai/UAE timezone)
@@ -32,8 +32,8 @@ class RunRegistrationController extends Controller
             // Parse deadline assuming it's in local timezone (not UTC)
             $deadlineTime = Carbon::parse($deadline, $localTimezone);
         } else {
-            // Default: night of 21 Nov 2026 at 12:00 AM Dubai = 22 Nov 2026 00:00:00 Asia/Dubai
-            $deadlineTime = Carbon::create(2026, 11, 22, 0, 0, 0, $localTimezone);
+            // Default: night of 23 Nov 2026 at 12:00 AM Dubai = 24 Nov 2026 00:00:00 Asia/Dubai
+            $deadlineTime = Carbon::create(2026, 11, 24, 0, 0, 0, $localTimezone);
         }
         
         $currentTime = $testTime ?? now();
@@ -56,7 +56,7 @@ class RunRegistrationController extends Controller
             // Parse deadline assuming it's in local timezone
             $deadlineTime = Carbon::parse($deadline, $localTimezone);
         } else {
-            $deadlineTime = Carbon::create(2026, 11, 22, 0, 0, 0, $localTimezone);
+            $deadlineTime = Carbon::create(2026, 11, 24, 0, 0, 0, $localTimezone);
         }
         
         $currentTime = $currentTime->setTimezone($localTimezone);
@@ -94,7 +94,7 @@ class RunRegistrationController extends Controller
         if ($deadline) {
             $deadlineTime = Carbon::parse($deadline);
         } else {
-            $deadlineTime = Carbon::create(2026, 11, 22, 0, 0, 0);
+            $deadlineTime = Carbon::create(2026, 11, 24, 0, 0, 0);
         }
         
         // Test times to check
@@ -109,10 +109,10 @@ class RunRegistrationController extends Controller
         } else {
             // Default test times
             $testTimes = [
-                ['label' => 'Nov 21 11:50 AM', 'time' => Carbon::create(2026, 11, 21, 11, 50, 0)],
-                ['label' => 'Nov 21 11:59 PM', 'time' => Carbon::create(2026, 11, 21, 23, 59, 59)],
-                ['label' => 'Nov 22 12:00 AM', 'time' => Carbon::create(2026, 11, 22, 0, 0, 0)],
-                ['label' => 'Nov 22 12:01 AM', 'time' => Carbon::create(2026, 11, 22, 0, 1, 0)],
+                ['label' => 'Nov 23 11:50 AM', 'time' => Carbon::create(2026, 11, 23, 11, 50, 0)],
+                ['label' => 'Nov 23 11:59 PM', 'time' => Carbon::create(2026, 11, 23, 23, 59, 59)],
+                ['label' => 'Nov 24 12:00 AM', 'time' => Carbon::create(2026, 11, 24, 0, 0, 0)],
+                ['label' => 'Nov 24 12:01 AM', 'time' => Carbon::create(2026, 11, 24, 0, 1, 0)],
             ];
         }
         
@@ -323,6 +323,7 @@ class RunRegistrationController extends Controller
             'employee_id' => 'required|unique:run_registrations',
             'dob' => 'required|date',
             'contact_number' => 'required|digits_between:8,15',
+            'planned_vacation' => 'required|date|after_or_equal:today|before_or_equal:2027-01-31',
             'trial_availability' => 'required|in:Yes,No',
             'trial_transportation' => 'required|in:Yes,No',
             'trial_pickup_location' => ['nullable', 'required_if:trial_transportation,Yes', Rule::in($pickupLocations)],
@@ -360,6 +361,7 @@ class RunRegistrationController extends Controller
             'dob' => $request->dob,
             'run_category' => 'Badminton',
             'contact_number' => $request->contact_number,
+            'planned_vacation' => $request->planned_vacation,
             'tshirt_size' => 'N/A',
             'trial_availability' => $request->trial_availability,
             'trial_transportation' => $request->trial_transportation,
@@ -538,6 +540,7 @@ class RunRegistrationController extends Controller
             'company' => ['required', Rule::in($companies)],
             'dob' => 'required|date',
             'contact_number' => 'required|digits_between:8,15',
+            'planned_vacation' => 'required|date|after_or_equal:today|before_or_equal:2027-01-31',
             'trial_availability' => 'required|in:Yes,No',
             'trial_transportation' => 'required|in:Yes,No',
             'trial_pickup_location' => ['nullable', 'required_if:trial_transportation,Yes', Rule::in($pickupLocations)],
@@ -551,6 +554,7 @@ class RunRegistrationController extends Controller
             'company' => $request->company,
             'dob' => $request->dob,
             'contact_number' => $request->contact_number,
+            'planned_vacation' => $request->planned_vacation,
             'trial_availability' => $request->trial_availability,
             'trial_transportation' => $request->trial_transportation,
             'trial_pickup_location' => $request->trial_transportation === 'Yes' ? $request->trial_pickup_location : null,
@@ -587,6 +591,7 @@ class RunRegistrationController extends Controller
                 'Company',
                 'DOB',
                 'Contact Number',
+                'Planned Vacation',
                 'Trial Availability',
                 'Trial Transportation',
                 'Trial Pickup Location',
@@ -606,6 +611,7 @@ class RunRegistrationController extends Controller
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
+                    $r->planned_vacation ? Carbon::parse($r->planned_vacation)->format('d/m/Y') : '-',
                     $r->trial_availability ?? '-',
                     $r->trial_transportation ?? '-',
                     $r->trial_pickup_location ?? '-',
@@ -699,6 +705,7 @@ class RunRegistrationController extends Controller
                 'Company',
                 'DOB',
                 'Contact Number',
+                'Planned Vacation',
                 'Trial Availability',
                 'Trial Transportation',
                 'Trial Pickup Location',
@@ -717,6 +724,7 @@ class RunRegistrationController extends Controller
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
+                    $r->planned_vacation ? Carbon::parse($r->planned_vacation)->format('d/m/Y') : '-',
                     $r->trial_availability ?? '-',
                     $r->trial_transportation ?? '-',
                     $r->trial_pickup_location ?? '-',

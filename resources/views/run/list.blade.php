@@ -131,6 +131,7 @@
                     <th>Company</th>
                     <th>DOB</th>
                     <th>Contact</th>
+                    <th>Planned Vacation</th>
                     <th>Trial Avail.</th>
                     <th>Trial Transport</th>
                     <th>Trial Pickup</th>
@@ -152,6 +153,7 @@
                     <td>{{ $r->company }}</td>
                     <td>{{ $r->dob ? \Illuminate\Support\Carbon::parse($r->dob)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $r->contact_number }}</td>
+                    <td>{{ $r->planned_vacation ? \Illuminate\Support\Carbon::parse($r->planned_vacation)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $r->trial_availability ?? '-' }}</td>
                     <td>{{ $r->trial_transportation ?? '-' }}</td>
                     <td>{{ $r->trial_pickup_location ?? '-' }}</td>

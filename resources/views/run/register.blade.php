@@ -211,10 +211,20 @@
                                 <input type="tel" class="form-control" id="contact_number" name="contact_number"
                                        value="{{ old('contact_number') }}" placeholder="Contact number" required>
                             </div>
+
+                            <div class="mb-3">
+                                <label for="planned_vacation" class="form-label">Planned Vacation <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="planned_vacation" name="planned_vacation"
+                                       value="{{ old('planned_vacation') }}"
+                                       min="{{ now()->timezone(config('app.timezone', 'Asia/Dubai'))->toDateString() }}"
+                                       max="2027-01-31"
+                                       required>
+                                <small class="text-muted">Select a date from today through 31 January 2027</small>
+                            </div>
                         </div>
 
                         <div class="form-section">
-                            <div class="section-title">Trial Details (25/11/2026)</div>
+                            <div class="section-title">Trial Details (27/11/2026)</div>
 
                             <div class="mb-3">
                                 <label for="trial_availability" class="form-label">Trial Availability (27/11/2026) <span class="text-danger">*</span></label>

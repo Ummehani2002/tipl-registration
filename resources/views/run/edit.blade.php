@@ -86,6 +86,15 @@
                                 <input type="tel" class="form-control" id="contact_number" name="contact_number"
                                        value="{{ old('contact_number', $registration->contact_number) }}" required>
                             </div>
+
+                            <div class="mb-3">
+                                <label for="planned_vacation" class="form-label">Planned Vacation <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="planned_vacation" name="planned_vacation"
+                                       value="{{ old('planned_vacation', $registration->planned_vacation ? \Illuminate\Support\Carbon::parse($registration->planned_vacation)->format('Y-m-d') : '') }}"
+                                       min="{{ now()->timezone(config('app.timezone', 'Asia/Dubai'))->toDateString() }}"
+                                       max="2027-01-31"
+                                       required>
+                            </div>
                         </div>
 
                         <div class="form-section">

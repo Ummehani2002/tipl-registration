@@ -15,6 +15,7 @@ class RunRegistration extends Model
         'dob',
         'run_category',
         'contact_number',
+        'planned_vacation',
         'tshirt_size',
         'trial_availability',
         'trial_transportation',
@@ -29,5 +30,6 @@ class RunRegistration extends Model
 
     protected $casts = [
         'dob' => 'date',
+        'planned_vacation' => 'date',
     ];
 }
