@@ -153,7 +153,24 @@
                     <td>{{ $r->company }}</td>
                     <td>{{ $r->dob ? \Illuminate\Support\Carbon::parse($r->dob)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $r->contact_number }}</td>
-                    <td>{{ $r->planned_vacation ? \Illuminate\Support\Carbon::parse($r->planned_vacation)->format('d/m/Y') : '-' }}</td>
+                    <td>
+                        @php
+                            $hasVacation = $r->has_planned_vacation ?? null;
+                            $from = $r->planned_vacation_from ?? $r->planned_vacation ?? null;
+                            $to = $r->planned_vacation_to ?? null;
+                        @endphp
+                        @if($hasVacation === 'No')
+                            No
+                        @elseif($hasVacation === 'Yes' || $from)
+                            @php
+                                $fromLabel = $from ? \Illuminate\Support\Carbon::parse($from)->format('d/m/Y') : '-';
+                                $toLabel = $to ? \Illuminate\Support\Carbon::parse($to)->format('d/m/Y') : $fromLabel;
+                            @endphp
+                            {{ $fromLabel === $toLabel ? $fromLabel : ($fromLabel . ' - ' . $toLabel) }}
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>{{ $r->trial_availability ?? '-' }}</td>
                     <td>{{ $r->trial_transportation ?? '-' }}</td>
                     <td>{{ $r->trial_pickup_location ?? '-' }}</td>

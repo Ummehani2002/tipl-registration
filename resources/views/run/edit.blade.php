@@ -95,13 +95,42 @@
                                 <small class="text-muted">Enter 9 digits after 971 (example: 971501234567)</small>
                             </div>
 
+                            @php
+                                $hasVacation = old('has_planned_vacation', $registration->has_planned_vacation
+                                    ?? ($registration->planned_vacation || $registration->planned_vacation_from ? 'Yes' : ''));
+                                $vacationFrom = old('planned_vacation_from', $registration->planned_vacation_from
+                                    ? \Illuminate\Support\Carbon::parse($registration->planned_vacation_from)->format('Y-m-d')
+                                    : ($registration->planned_vacation ? \Illuminate\Support\Carbon::parse($registration->planned_vacation)->format('Y-m-d') : ''));
+                                $vacationTo = old('planned_vacation_to', $registration->planned_vacation_to
+                                    ? \Illuminate\Support\Carbon::parse($registration->planned_vacation_to)->format('Y-m-d')
+                                    : ($registration->planned_vacation ? \Illuminate\Support\Carbon::parse($registration->planned_vacation)->format('Y-m-d') : ''));
+                            @endphp
                             <div class="mb-3">
-                                <label for="planned_vacation" class="form-label">Planned Vacation <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="planned_vacation" name="planned_vacation"
-                                       value="{{ old('planned_vacation', $registration->planned_vacation ? \Illuminate\Support\Carbon::parse($registration->planned_vacation)->format('Y-m-d') : '') }}"
-                                       min="{{ now()->timezone(config('app.timezone', 'Asia/Dubai'))->toDateString() }}"
-                                       max="2027-01-31"
-                                       required>
+                                <label for="has_planned_vacation" class="form-label">Planned Vacation <span class="text-danger">*</span></label>
+                                <select class="form-control form-select" id="has_planned_vacation" name="has_planned_vacation" required>
+                                    <option value="">Select</option>
+                                    <option value="Yes" {{ $hasVacation == 'Yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="No" {{ $hasVacation == 'No' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 pickup-field {{ $hasVacation == 'Yes' ? 'show' : '' }}" id="vacation_dates_wrap">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <label for="planned_vacation_from" class="form-label">Vacation From <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="planned_vacation_from" name="planned_vacation_from"
+                                               value="{{ $vacationFrom }}"
+                                               min="{{ now()->timezone(config('app.timezone', 'Asia/Dubai'))->toDateString() }}"
+                                               max="2027-01-31">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="planned_vacation_to" class="form-label">Vacation To <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="planned_vacation_to" name="planned_vacation_to"
+                                               value="{{ $vacationTo }}"
+                                               min="{{ now()->timezone(config('app.timezone', 'Asia/Dubai'))->toDateString() }}"
+                                               max="2027-01-31">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -196,6 +225,39 @@
     }
     togglePickup('trial_transportation', 'trial_pickup_wrap', 'trial_pickup_location');
     togglePickup('tournament_transportation', 'tournament_pickup_wrap', 'tournament_pickup_location');
+
+    (function toggleVacationDates() {
+        const select = document.getElementById('has_planned_vacation');
+        const wrap = document.getElementById('vacation_dates_wrap');
+        const from = document.getElementById('planned_vacation_from');
+        const to = document.getElementById('planned_vacation_to');
+        if (!select || !wrap || !from || !to) return;
+
+        const update = () => {
+            if (select.value === 'Yes') {
+                wrap.classList.add('show');
+                from.required = true;
+                to.required = true;
+            } else {
+                wrap.classList.remove('show');
+                from.required = false;
+                to.required = false;
+                from.value = '';
+                to.value = '';
+            }
+        };
+
+        select.addEventListener('change', update);
+        from.addEventListener('change', () => {
+            if (from.value) {
+                to.min = from.value;
+                if (to.value && to.value < from.value) {
+                    to.value = from.value;
+                }
+            }
+        });
+        update();
+    })();
 
     const contactLocal = document.getElementById('contact_local');
     const contactHidden = document.getElementById('contact_number');

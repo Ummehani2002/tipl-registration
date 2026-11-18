@@ -193,7 +193,9 @@ class RunRegistrationController extends Controller
                 'company',
                 'dob',
                 'contact_number',
-                'planned_vacation',
+                'has_planned_vacation',
+                'planned_vacation_from',
+                'planned_vacation_to',
                 'trial_availability',
                 'trial_transportation',
                 'trial_pickup_location',
@@ -422,7 +424,9 @@ class RunRegistrationController extends Controller
             'employee_id' => 'required|unique:run_registrations',
             'dob' => 'required|date',
             'contact_number' => ['required', 'regex:/^971[0-9]{9}$/'],
-            'planned_vacation' => 'required|date|after_or_equal:today|before_or_equal:2027-01-31',
+            'has_planned_vacation' => 'required|in:Yes,No',
+            'planned_vacation_from' => ['nullable', 'required_if:has_planned_vacation,Yes', 'date', 'after_or_equal:today', 'before_or_equal:2027-01-31'],
+            'planned_vacation_to' => ['nullable', 'required_if:has_planned_vacation,Yes', 'date', 'after_or_equal:planned_vacation_from', 'before_or_equal:2027-01-31'],
             'trial_availability' => 'required|in:Yes,No',
             'trial_transportation' => 'required|in:Yes,No',
             'trial_pickup_location' => ['nullable', 'required_if:trial_transportation,Yes', Rule::in($pickupLocations)],
@@ -431,6 +435,9 @@ class RunRegistrationController extends Controller
             'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
         ], [
             'contact_number.regex' => 'Contact number must start with 971 followed by exactly 9 digits (example: 971501234567).',
+            'planned_vacation_from.required_if' => 'Please select the vacation start date.',
+            'planned_vacation_to.required_if' => 'Please select the vacation end date.',
+            'planned_vacation_to.after_or_equal' => 'Vacation end date must be on or after the start date.',
         ]);
 
         // Generate unique registration ID: BC4-XXXX
@@ -465,7 +472,10 @@ class RunRegistrationController extends Controller
                 'dob' => $request->dob,
                 'run_category' => 'Badminton',
                 'contact_number' => $request->contact_number,
-                'planned_vacation' => $request->planned_vacation,
+                'has_planned_vacation' => $request->has_planned_vacation,
+                'planned_vacation_from' => $request->has_planned_vacation === 'Yes' ? $request->planned_vacation_from : null,
+                'planned_vacation_to' => $request->has_planned_vacation === 'Yes' ? $request->planned_vacation_to : null,
+                'planned_vacation' => $request->has_planned_vacation === 'Yes' ? $request->planned_vacation_from : null,
                 'tshirt_size' => 'N/A',
                 'trial_availability' => $request->trial_availability,
                 'trial_transportation' => $request->trial_transportation,
@@ -495,6 +505,27 @@ class RunRegistrationController extends Controller
     }
 
     /**
+     * Format planned vacation for list/export display.
+     */
+    private function formatPlannedVacation($registration): string
+    {
+        if (($registration->has_planned_vacation ?? null) === 'No') {
+            return 'No';
+        }
+
+        $from = $registration->planned_vacation_from ?? $registration->planned_vacation ?? null;
+        $to = $registration->planned_vacation_to ?? null;
+
+        if (($registration->has_planned_vacation ?? null) === 'Yes' || $from) {
+            $fromLabel = $from ? Carbon::parse($from)->format('d/m/Y') : '-';
+            $toLabel = $to ? Carbon::parse($to)->format('d/m/Y') : $fromLabel;
+            return $fromLabel === $toLabel ? $fromLabel : ($fromLabel . ' - ' . $toLabel);
+        }
+
+        return '-';
+    }
+
+    /**
      * Ensure badminton columns exist (helps when Cloud migrate was not run yet).
      */
     private function ensureBadmintonColumns(): void
@@ -505,6 +536,9 @@ class RunRegistrationController extends Controller
 
         $columns = [
             'planned_vacation' => fn (Blueprint $table) => $table->date('planned_vacation')->nullable(),
+            'has_planned_vacation' => fn (Blueprint $table) => $table->string('has_planned_vacation')->nullable(),
+            'planned_vacation_from' => fn (Blueprint $table) => $table->date('planned_vacation_from')->nullable(),
+            'planned_vacation_to' => fn (Blueprint $table) => $table->date('planned_vacation_to')->nullable(),
             'trial_availability' => fn (Blueprint $table) => $table->string('trial_availability')->nullable(),
             'trial_transportation' => fn (Blueprint $table) => $table->string('trial_transportation')->nullable(),
             'trial_pickup_location' => fn (Blueprint $table) => $table->string('trial_pickup_location')->nullable(),
@@ -774,7 +808,9 @@ class RunRegistrationController extends Controller
             'company' => ['required', Rule::in($companies)],
             'dob' => 'required|date',
             'contact_number' => ['required', 'regex:/^971[0-9]{9}$/'],
-            'planned_vacation' => 'required|date|after_or_equal:today|before_or_equal:2027-01-31',
+            'has_planned_vacation' => 'required|in:Yes,No',
+            'planned_vacation_from' => ['nullable', 'required_if:has_planned_vacation,Yes', 'date', 'after_or_equal:today', 'before_or_equal:2027-01-31'],
+            'planned_vacation_to' => ['nullable', 'required_if:has_planned_vacation,Yes', 'date', 'after_or_equal:planned_vacation_from', 'before_or_equal:2027-01-31'],
             'trial_availability' => 'required|in:Yes,No',
             'trial_transportation' => 'required|in:Yes,No',
             'trial_pickup_location' => ['nullable', 'required_if:trial_transportation,Yes', Rule::in($pickupLocations)],
@@ -783,6 +819,9 @@ class RunRegistrationController extends Controller
             'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
         ], [
             'contact_number.regex' => 'Contact number must start with 971 followed by exactly 9 digits (example: 971501234567).',
+            'planned_vacation_from.required_if' => 'Please select the vacation start date.',
+            'planned_vacation_to.required_if' => 'Please select the vacation end date.',
+            'planned_vacation_to.after_or_equal' => 'Vacation end date must be on or after the start date.',
         ]);
 
         $registration->update([
@@ -790,7 +829,10 @@ class RunRegistrationController extends Controller
             'company' => $request->company,
             'dob' => $request->dob,
             'contact_number' => $request->contact_number,
-            'planned_vacation' => $request->planned_vacation,
+            'has_planned_vacation' => $request->has_planned_vacation,
+            'planned_vacation_from' => $request->has_planned_vacation === 'Yes' ? $request->planned_vacation_from : null,
+            'planned_vacation_to' => $request->has_planned_vacation === 'Yes' ? $request->planned_vacation_to : null,
+            'planned_vacation' => $request->has_planned_vacation === 'Yes' ? $request->planned_vacation_from : null,
             'trial_availability' => $request->trial_availability,
             'trial_transportation' => $request->trial_transportation,
             'trial_pickup_location' => $request->trial_transportation === 'Yes' ? $request->trial_pickup_location : null,
@@ -847,7 +889,7 @@ class RunRegistrationController extends Controller
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
-                    $r->planned_vacation ? Carbon::parse($r->planned_vacation)->format('d/m/Y') : '-',
+                    $this->formatPlannedVacation($r),
                     $r->trial_availability ?? '-',
                     $r->trial_transportation ?? '-',
                     $r->trial_pickup_location ?? '-',
@@ -960,7 +1002,7 @@ class RunRegistrationController extends Controller
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
-                    $r->planned_vacation ? Carbon::parse($r->planned_vacation)->format('d/m/Y') : '-',
+                    $this->formatPlannedVacation($r),
                     $r->trial_availability ?? '-',
                     $r->trial_transportation ?? '-',
                     $r->trial_pickup_location ?? '-',

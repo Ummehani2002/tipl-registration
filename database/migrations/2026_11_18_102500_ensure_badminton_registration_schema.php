@@ -21,6 +21,9 @@ return new class extends Migration
                 $table->string('run_category')->nullable();
                 $table->string('contact_number');
                 $table->date('planned_vacation')->nullable();
+                $table->string('has_planned_vacation')->nullable();
+                $table->date('planned_vacation_from')->nullable();
+                $table->date('planned_vacation_to')->nullable();
                 $table->string('tshirt_size')->nullable();
                 $table->string('trial_availability')->nullable();
                 $table->string('trial_transportation')->nullable();
@@ -40,6 +43,9 @@ return new class extends Migration
             'registration_id' => fn (Blueprint $t) => $t->string('registration_id')->nullable(),
             'entity' => fn (Blueprint $t) => $t->string('entity')->nullable(),
             'planned_vacation' => fn (Blueprint $t) => $t->date('planned_vacation')->nullable(),
+            'has_planned_vacation' => fn (Blueprint $t) => $t->string('has_planned_vacation')->nullable(),
+            'planned_vacation_from' => fn (Blueprint $t) => $t->date('planned_vacation_from')->nullable(),
+            'planned_vacation_to' => fn (Blueprint $t) => $t->date('planned_vacation_to')->nullable(),
             'trial_availability' => fn (Blueprint $t) => $t->string('trial_availability')->nullable(),
             'trial_transportation' => fn (Blueprint $t) => $t->string('trial_transportation')->nullable(),
             'trial_pickup_location' => fn (Blueprint $t) => $t->string('trial_pickup_location')->nullable(),
