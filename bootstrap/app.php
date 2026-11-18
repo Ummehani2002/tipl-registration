@@ -14,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // Required on Laravel Cloud / HTTPS reverse proxies so sessions & CSRF work
         $middleware->trustProxies(at: '*');
 
+        // Public registration form can 419 on Cloud when session cookies fail;
+        // keep CSRF on admin routes, exempt only the public registration POST.
+        $middleware->validateCsrfTokens(except: [
+            'tanseeq-badminton',
+            'tanseeq-run',
+        ]);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminAuth::class,
         ]);
