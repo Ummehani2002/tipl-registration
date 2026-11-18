@@ -167,7 +167,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ url('/tanseeq-run') }}" id="registrationForm">
+                    <form method="POST" action="{{ url('/tanseeq-badminton') }}" id="registrationForm">
                         @csrf
 
                         <div class="form-section">

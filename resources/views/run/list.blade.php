@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tanseeq Badminton - Registrations List (Admin)</title>
+    <title>Tanseeq Badminton Championship - Registrations (Admin)</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -112,8 +112,8 @@
         <div class="count">Total Registrations: {{ $registrations->count() }}</div>
         
         <div class="action-buttons">
-            <a href="/tanseeq-run" class="btn btn-primary">Create New Registration</a>
-            <a href="/tanseeq-run/export" class="btn btn-success">Download All CSV</a>
+            <a href="/tanseeq-badminton" class="btn btn-primary">Create New Registration</a>
+            <a href="/tanseeq-badminton/export" class="btn btn-success">Download All CSV</a>
             @if(isset($isSuperAdmin) && $isSuperAdmin)
                 <a href="{{ route('admin.register') }}" class="btn" style="background-color: #6c757d; color: white;">Create Admin Account</a>
             @endif

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mark Attendance - Tanseeq Run (Admin)</title>
+    <title>Mark Attendance - Tanseeq Badminton (Admin)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -122,7 +122,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>📋 Mark Attendance - Tanseeq Run</h2>
+        <h2>Mark Attendance - Tanseeq Badminton</h2>
         
         @if(session('success'))
             <div class="success-message">{{ session('success') }}</div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Registration - Tanseeq Run</title>
+    <title>Admin Registration - Tanseeq Badminton</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * {
@@ -81,7 +81,7 @@
                 <div class="card shadow register-card">
                     <div class="card-body p-5">
                         <h3 class="card-title text-center mb-4">Create Admin Account</h3>
-                        <p class="text-center text-muted mb-4">Tanseeq Run Registration System</p>
+                        <p class="text-center text-muted mb-4">Tanseeq Badminton Championship</p>
 
                         @if($errors->any())
                             <div class="alert alert-danger">
@@ -142,7 +142,7 @@
                         </div>
 
                         <div class="mt-3 text-center">
-                            <a href="/tanseeq-run" class="text-muted" style="text-decoration: none;">
+                            <a href="/tanseeq-badminton" class="text-muted" style="text-decoration: none;">
                                 ← Back to Registration
                             </a>
                         </div>
