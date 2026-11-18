@@ -154,8 +154,10 @@ class RunRegistrationController extends Controller
         if ($this->isRegistrationClosed()) {
             return view('run.closed');
         }
-        
-        return view('run.register');
+
+        return view('run.register', [
+            'inlineError' => null,
+        ]);
     }
 
     public function checkDatabase()

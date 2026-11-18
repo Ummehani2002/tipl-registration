@@ -157,13 +157,13 @@
                         </div>
                     @else
 
-                    @if(!empty($inlineError))
+                    @isset($inlineError)
                         <div class="alert alert-danger">
                             {{ $inlineError }}
                         </div>
-                    @endif
+                    @endisset
 
-                    @if(isset($errors) && $errors->any())
+                    @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="mb-0">
                                 @foreach($errors->all() as $error)
