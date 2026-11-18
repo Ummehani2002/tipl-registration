@@ -82,9 +82,17 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="contact_number" name="contact_number"
-                                       value="{{ old('contact_number', $registration->contact_number) }}" required>
+                                <label for="contact_local" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">971</span>
+                                    <input type="tel" class="form-control" id="contact_local" inputmode="numeric"
+                                           maxlength="9" pattern="[0-9]{9}"
+                                           value="{{ old('contact_number', $registration->contact_number) && str_starts_with(old('contact_number', $registration->contact_number), '971') ? substr(old('contact_number', $registration->contact_number), 3) : '' }}"
+                                           placeholder="501234567" required>
+                                </div>
+                                <input type="hidden" id="contact_number" name="contact_number"
+                                       value="{{ old('contact_number', $registration->contact_number) }}">
+                                <small class="text-muted">Enter 9 digits after 971 (example: 971501234567)</small>
                             </div>
 
                             <div class="mb-3">
@@ -188,6 +196,19 @@
     }
     togglePickup('trial_transportation', 'trial_pickup_wrap', 'trial_pickup_location');
     togglePickup('tournament_transportation', 'tournament_pickup_wrap', 'tournament_pickup_location');
+
+    const contactLocal = document.getElementById('contact_local');
+    const contactHidden = document.getElementById('contact_number');
+    function syncContactNumber() {
+        if (!contactLocal || !contactHidden) return;
+        const digits = contactLocal.value.replace(/\D/g, '').slice(0, 9);
+        contactLocal.value = digits;
+        contactHidden.value = digits.length ? ('971' + digits) : '';
+    }
+    if (contactLocal) {
+        contactLocal.addEventListener('input', syncContactNumber);
+        syncContactNumber();
+    }
 </script>
 </body>
 </html>

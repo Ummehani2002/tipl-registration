@@ -322,7 +322,7 @@ class RunRegistrationController extends Controller
             'name' => 'required|string|max:255',
             'employee_id' => 'required|unique:run_registrations',
             'dob' => 'required|date',
-            'contact_number' => 'required|digits_between:8,15',
+            'contact_number' => ['required', 'regex:/^971[0-9]{9}$/'],
             'planned_vacation' => 'required|date|after_or_equal:today|before_or_equal:2027-01-31',
             'trial_availability' => 'required|in:Yes,No',
             'trial_transportation' => 'required|in:Yes,No',
@@ -330,6 +330,8 @@ class RunRegistrationController extends Controller
             'tournament_availability' => 'required|in:Yes,No',
             'tournament_transportation' => 'required|in:Yes,No',
             'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
+        ], [
+            'contact_number.regex' => 'Contact number must start with 971 followed by exactly 9 digits (example: 971501234567).',
         ]);
 
         // Generate unique registration ID: BC4-XXXX
@@ -539,7 +541,7 @@ class RunRegistrationController extends Controller
             'name' => 'required|string|max:255',
             'company' => ['required', Rule::in($companies)],
             'dob' => 'required|date',
-            'contact_number' => 'required|digits_between:8,15',
+            'contact_number' => ['required', 'regex:/^971[0-9]{9}$/'],
             'planned_vacation' => 'required|date|after_or_equal:today|before_or_equal:2027-01-31',
             'trial_availability' => 'required|in:Yes,No',
             'trial_transportation' => 'required|in:Yes,No',
@@ -547,6 +549,8 @@ class RunRegistrationController extends Controller
             'tournament_availability' => 'required|in:Yes,No',
             'tournament_transportation' => 'required|in:Yes,No',
             'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
+        ], [
+            'contact_number.regex' => 'Contact number must start with 971 followed by exactly 9 digits (example: 971501234567).',
         ]);
 
         $registration->update([
