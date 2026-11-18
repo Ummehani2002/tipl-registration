@@ -189,6 +189,7 @@ class RunRegistrationController extends Controller
 
             $required = [
                 'employee_id',
+                'email',
                 'name',
                 'company',
                 'dob',
@@ -418,10 +419,16 @@ class RunRegistrationController extends Controller
             'DIP/Jebel Ali',
         ];
 
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+            'employee_id' => trim((string) $request->input('employee_id')),
+        ]);
+
         $request->validate([
             'company' => ['required', Rule::in($companies)],
             'name' => 'required|string|max:255',
-            'employee_id' => 'required|unique:run_registrations',
+            'employee_id' => ['required', 'string', 'max:255', Rule::unique('run_registrations', 'employee_id')],
+            'email' => ['required', 'email', 'max:255', Rule::unique('run_registrations', 'email')],
             'dob' => 'required|date',
             'contact_number' => ['required', 'regex:/^971[0-9]{9}$/'],
             'has_planned_vacation' => 'required|in:Yes,No',
@@ -434,6 +441,8 @@ class RunRegistrationController extends Controller
             'tournament_transportation' => 'required|in:Yes,No',
             'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
         ], [
+            'employee_id.unique' => 'This Employee ID is already registered. Each Employee ID can register only once.',
+            'email.unique' => 'This email is already registered. Each email can be used only once.',
             'contact_number.regex' => 'Contact number must start with 971 followed by exactly 9 digits (example: 971501234567).',
             'planned_vacation_from.required_if' => 'Please select the vacation start date.',
             'planned_vacation_to.required_if' => 'Please select the vacation end date.',
@@ -466,6 +475,7 @@ class RunRegistrationController extends Controller
 
             RunRegistration::create([
                 'employee_id' => $request->employee_id,
+                'email' => $request->email,
                 'name' => $request->name,
                 'designation' => 'Player',
                 'company' => $request->company,
@@ -535,6 +545,7 @@ class RunRegistrationController extends Controller
         }
 
         $columns = [
+            'email' => fn (Blueprint $table) => $table->string('email')->nullable()->unique(),
             'planned_vacation' => fn (Blueprint $table) => $table->date('planned_vacation')->nullable(),
             'has_planned_vacation' => fn (Blueprint $table) => $table->string('has_planned_vacation')->nullable(),
             'planned_vacation_from' => fn (Blueprint $table) => $table->date('planned_vacation_from')->nullable(),
@@ -803,9 +814,16 @@ class RunRegistrationController extends Controller
             'DIP/Jebel Ali',
         ];
 
+        $this->ensureBadmintonColumns();
+
+        $request->merge([
+            'email' => strtolower(trim((string) $request->input('email'))),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'company' => ['required', Rule::in($companies)],
+            'email' => ['required', 'email', 'max:255', Rule::unique('run_registrations', 'email')->ignore($registration->id)],
             'dob' => 'required|date',
             'contact_number' => ['required', 'regex:/^971[0-9]{9}$/'],
             'has_planned_vacation' => 'required|in:Yes,No',
@@ -818,6 +836,7 @@ class RunRegistrationController extends Controller
             'tournament_transportation' => 'required|in:Yes,No',
             'tournament_pickup_location' => ['nullable', 'required_if:tournament_transportation,Yes', Rule::in($pickupLocations)],
         ], [
+            'email.unique' => 'This email is already registered. Each email can be used only once.',
             'contact_number.regex' => 'Contact number must start with 971 followed by exactly 9 digits (example: 971501234567).',
             'planned_vacation_from.required_if' => 'Please select the vacation start date.',
             'planned_vacation_to.required_if' => 'Please select the vacation end date.',
@@ -827,6 +846,7 @@ class RunRegistrationController extends Controller
         $registration->update([
             'name' => $request->name,
             'company' => $request->company,
+            'email' => $request->email,
             'dob' => $request->dob,
             'contact_number' => $request->contact_number,
             'has_planned_vacation' => $request->has_planned_vacation,
@@ -866,6 +886,7 @@ class RunRegistrationController extends Controller
                 'Registration ID',
                 'Employee ID',
                 'Name',
+                'Email',
                 'Company',
                 'DOB',
                 'Contact Number',
@@ -886,6 +907,7 @@ class RunRegistrationController extends Controller
                     $r->registration_id ?? 'N/A',
                     $r->employee_id,
                     $r->name,
+                    $r->email ?? '-',
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
@@ -980,6 +1002,7 @@ class RunRegistrationController extends Controller
                 'Registration ID',
                 'Employee ID',
                 'Name',
+                'Email',
                 'Company',
                 'DOB',
                 'Contact Number',
@@ -999,6 +1022,7 @@ class RunRegistrationController extends Controller
                     $r->registration_id ?? 'N/A',
                     $r->employee_id,
                     $r->name,
+                    $r->email ?? '-',
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,
@@ -1044,6 +1068,7 @@ class RunRegistrationController extends Controller
                 'Registration ID',
                 'Employee ID',
                 'Name',
+                'Email',
                 'Company',
                 'DOB',
                 'Contact Number',
@@ -1066,6 +1091,7 @@ class RunRegistrationController extends Controller
                     $r->registration_id ?? 'N/A',
                     $r->employee_id,
                     $r->name,
+                    $r->email ?? '-',
                     $r->company,
                     $r->dob ? Carbon::parse($r->dob)->format('d/m/Y') : '-',
                     $r->contact_number,

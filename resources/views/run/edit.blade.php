@@ -58,6 +58,13 @@
                                 <label for="employee_id" class="form-label">Employee ID</label>
                                 <input type="text" class="form-control" id="employee_id"
                                        value="{{ $registration->employee_id }}" disabled>
+                                <small class="text-muted">Employee ID cannot be changed</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       value="{{ old('email', $registration->email) }}" required autocomplete="email">
                             </div>
 
                             <div class="mb-3">

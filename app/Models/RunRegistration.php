@@ -8,6 +8,7 @@ class RunRegistration extends Model
 {
     protected $fillable = [
         'employee_id',
+        'email',
         'name',
         'designation',
         'company',

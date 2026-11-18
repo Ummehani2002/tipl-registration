@@ -204,6 +204,14 @@
                                 <label for="employee_id" class="form-label">Employee ID <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="employee_id" name="employee_id"
                                        value="{{ old('employee_id') }}" placeholder="Enter employee ID" required autocomplete="off">
+                                <small class="text-muted">Each Employee ID can register only once</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       value="{{ old('email') }}" placeholder="Enter email address" required autocomplete="email">
+                                <small class="text-muted">Each email can be used only once</small>
                             </div>
 
                             <div class="mb-3">

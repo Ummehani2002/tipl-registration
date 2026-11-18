@@ -128,6 +128,7 @@
                     <th>Registration ID</th>
                     <th>Employee ID</th>
                     <th>Name</th>
+                    <th>Email</th>
                     <th>Company</th>
                     <th>DOB</th>
                     <th>Contact</th>
@@ -150,6 +151,7 @@
                     <td>{{ $r->registration_id ?? 'N/A' }}</td>
                     <td>{{ $r->employee_id }}</td>
                     <td>{{ $r->name }}</td>
+                    <td>{{ $r->email ?? '-' }}</td>
                     <td>{{ $r->company }}</td>
                     <td>{{ $r->dob ? \Illuminate\Support\Carbon::parse($r->dob)->format('d/m/Y') : '-' }}</td>
                     <td>{{ $r->contact_number }}</td>

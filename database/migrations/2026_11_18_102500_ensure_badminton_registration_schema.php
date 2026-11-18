@@ -13,6 +13,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('registration_id')->nullable()->unique();
                 $table->string('employee_id')->unique();
+                $table->string('email')->nullable()->unique();
                 $table->string('name');
                 $table->string('designation')->nullable();
                 $table->string('company');
@@ -41,6 +42,7 @@ return new class extends Migration
 
         $add = [
             'registration_id' => fn (Blueprint $t) => $t->string('registration_id')->nullable(),
+            'email' => fn (Blueprint $t) => $t->string('email')->nullable()->unique(),
             'entity' => fn (Blueprint $t) => $t->string('entity')->nullable(),
             'planned_vacation' => fn (Blueprint $t) => $t->date('planned_vacation')->nullable(),
             'has_planned_vacation' => fn (Blueprint $t) => $t->string('has_planned_vacation')->nullable(),
