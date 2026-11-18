@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
@@ -355,29 +358,71 @@ class RunRegistrationController extends Controller
             $registrationId = 'BC4-' . $nextNumber;
         }
 
-        RunRegistration::create([
-            'employee_id' => $request->employee_id,
-            'name' => $request->name,
-            'designation' => 'Player',
-            'company' => $request->company,
-            'dob' => $request->dob,
-            'run_category' => 'Badminton',
-            'contact_number' => $request->contact_number,
-            'planned_vacation' => $request->planned_vacation,
-            'tshirt_size' => 'N/A',
-            'trial_availability' => $request->trial_availability,
-            'trial_transportation' => $request->trial_transportation,
-            'trial_pickup_location' => $request->trial_transportation === 'Yes' ? $request->trial_pickup_location : null,
-            'tournament_availability' => $request->tournament_availability,
-            'tournament_transportation' => $request->tournament_transportation,
-            'tournament_pickup_location' => $request->tournament_transportation === 'Yes' ? $request->tournament_pickup_location : null,
-            'registration_id' => $registrationId,
-        ]);
+        try {
+            $this->ensureBadmintonColumns();
+
+            RunRegistration::create([
+                'employee_id' => $request->employee_id,
+                'name' => $request->name,
+                'designation' => 'Player',
+                'company' => $request->company,
+                'dob' => $request->dob,
+                'run_category' => 'Badminton',
+                'contact_number' => $request->contact_number,
+                'planned_vacation' => $request->planned_vacation,
+                'tshirt_size' => 'N/A',
+                'trial_availability' => $request->trial_availability,
+                'trial_transportation' => $request->trial_transportation,
+                'trial_pickup_location' => $request->trial_transportation === 'Yes' ? $request->trial_pickup_location : null,
+                'tournament_availability' => $request->tournament_availability,
+                'tournament_transportation' => $request->tournament_transportation,
+                'tournament_pickup_location' => $request->tournament_transportation === 'Yes' ? $request->tournament_pickup_location : null,
+                'registration_id' => $registrationId,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Badminton registration failed', [
+                'message' => $e->getMessage(),
+                'employee_id' => $request->employee_id,
+            ]);
+
+            return back()
+                ->withErrors(['registration' => 'Registration failed: ' . $e->getMessage()])
+                ->withInput();
+        }
 
         return redirect()->back()->with([
             'success' => 'Registration successful! Your Registration ID is: ' . $registrationId,
             'registration_id' => $registrationId
         ]);
+    }
+
+    /**
+     * Ensure badminton columns exist (helps when Cloud migrate was not run yet).
+     */
+    private function ensureBadmintonColumns(): void
+    {
+        if (!Schema::hasTable('run_registrations')) {
+            throw new \RuntimeException('Registrations table is missing. Run: php artisan migrate --force');
+        }
+
+        $columns = [
+            'planned_vacation' => fn (Blueprint $table) => $table->date('planned_vacation')->nullable(),
+            'trial_availability' => fn (Blueprint $table) => $table->string('trial_availability')->nullable(),
+            'trial_transportation' => fn (Blueprint $table) => $table->string('trial_transportation')->nullable(),
+            'trial_pickup_location' => fn (Blueprint $table) => $table->string('trial_pickup_location')->nullable(),
+            'tournament_availability' => fn (Blueprint $table) => $table->string('tournament_availability')->nullable(),
+            'tournament_transportation' => fn (Blueprint $table) => $table->string('tournament_transportation')->nullable(),
+            'tournament_pickup_location' => fn (Blueprint $table) => $table->string('tournament_pickup_location')->nullable(),
+            'registration_id' => fn (Blueprint $table) => $table->string('registration_id')->nullable(),
+        ];
+
+        foreach ($columns as $column => $definition) {
+            if (!Schema::hasColumn('run_registrations', $column)) {
+                Schema::table('run_registrations', function (Blueprint $table) use ($definition) {
+                    $definition($table);
+                });
+            }
+        }
     }
 
     public function index()
