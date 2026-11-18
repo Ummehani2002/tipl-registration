@@ -32,11 +32,8 @@ return new class extends Migration
                 $table->timestamps();
             });
         } else {
-            // For MySQL/MariaDB, we can alter the columns
-            Schema::table('run_registrations', function (Blueprint $table) {
-                $table->string('run_category')->change();
-                $table->string('tshirt_size')->change();
-            });
+            // Skip doctrine/dbal ->change() on MySQL; columns are already strings in later deploys.
+            // No-op keeps Cloud migrations from failing when dbal is not installed.
         }
     }
 

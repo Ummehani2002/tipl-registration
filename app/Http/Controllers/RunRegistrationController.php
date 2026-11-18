@@ -179,6 +179,48 @@ class RunRegistrationController extends Controller
         }
     }
 
+    public function checkSchema()
+    {
+        try {
+            $this->ensureBadmintonColumns();
+
+            $required = [
+                'employee_id',
+                'name',
+                'company',
+                'dob',
+                'contact_number',
+                'planned_vacation',
+                'trial_availability',
+                'trial_transportation',
+                'trial_pickup_location',
+                'tournament_availability',
+                'tournament_transportation',
+                'tournament_pickup_location',
+                'registration_id',
+            ];
+
+            $existing = Schema::hasTable('run_registrations')
+                ? Schema::getColumnListing('run_registrations')
+                : [];
+
+            $missing = array_values(array_diff($required, $existing));
+
+            return response()->json([
+                'status' => empty($missing) ? 'ok' : 'missing_columns',
+                'table_exists' => Schema::hasTable('run_registrations'),
+                'columns' => $existing,
+                'missing' => $missing,
+                'registration_count' => Schema::hasTable('run_registrations') ? RunRegistration::count() : 0,
+            ], 200, [], JSON_PRETTY_PRINT);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500, [], JSON_PRETTY_PRINT);
+        }
+    }
+
     public function checkAdminStatus()
     {
         $isSuperAdmin = $this->isSuperAdmin();
@@ -385,9 +427,11 @@ class RunRegistrationController extends Controller
                 'employee_id' => $request->employee_id,
             ]);
 
-            return back()
-                ->withErrors(['registration' => 'Registration failed: ' . $e->getMessage()])
-                ->withInput();
+            // Avoid session flash (can 500 on Cloud cookie issues); render form with inline error.
+            return response()->view('run.register', [
+                'inlineError' => 'Registration failed: ' . $e->getMessage(),
+                'oldInput' => $request->all(),
+            ], 500);
         }
 
         return redirect()->back()->with([

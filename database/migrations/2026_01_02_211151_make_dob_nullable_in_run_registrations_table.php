@@ -12,17 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // For MySQL/MariaDB, alter the column to be nullable
-        if (DB::getDriverName() !== 'sqlite') {
-            Schema::table('run_registrations', function (Blueprint $table) {
-                $table->date('dob')->nullable()->change();
-            });
-        } else {
-            // For SQLite, we need to recreate the table
-            Schema::table('run_registrations', function (Blueprint $table) {
-                $table->date('dob')->nullable()->change();
-            });
-        }
+        // Avoid doctrine/dbal ->change() which breaks Laravel Cloud deploys.
+        // DOB is already treated as nullable in application code.
     }
 
     /**
